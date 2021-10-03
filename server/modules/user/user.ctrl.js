@@ -9,7 +9,8 @@ const create = async (req, res) => {
   try {
     await user.save()
     return res.status(201).json({
-      message: "Successfully signed up!"
+      _id: user._id,
+      message: "Successfully signed up!",
     })
   } catch (err) {
     console.log(req.body, err)

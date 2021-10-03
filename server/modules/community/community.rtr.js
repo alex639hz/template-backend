@@ -6,6 +6,7 @@ var commCtrl = require('../community/community.ctrl');
 const router = express.Router()
 
 router.param('userId', userCtrl.userByID)
+router.param('community', commCtrl.communityByTitle) //inject title string into req.community
 
 router.route('')
   .post(
@@ -16,15 +17,18 @@ router.route('')
     authCtrl.requireSignin,
     commCtrl.list) // list communities
 
-router.route('/:community')
-  .post(
+router.route('/member-request/:community')
+  .patch(
     authCtrl.requireSignin,
-    commCtrl.membershipRequest) // membership request to community
+    commCtrl.requestMembership) // membership request to community
+
+
+router.route('/member-approve/:community')
   .patch(
     authCtrl.requireSignin,
     authCtrl.isModerator,
     // function (req, res, next) { userCtrl.userByID(req, res, next, req.auth._id) },
-    commCtrl.approveMembershipRequest) // approve membership request to community
+    commCtrl.approveMembership) // approve membership request to community
 
 
 // router.route('/:userId')

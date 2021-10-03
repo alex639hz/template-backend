@@ -2,8 +2,11 @@ const request = require("supertest");
 const app = require("../server/express");
 const config = require("../server/config/config");
 const { User } = require('../server/modules/user/user.model');
-const { Image } = require('../server/modules/image/image.model');
-const { Deployment } = require('../server/modules/deployment/deployment.model');
+const { Keyword } = require('../server/modules/keyword/keyword.model');
+const { Community } = require('../server/modules/community/community.model');
+const { Post } = require('../server/modules/post/post.model');
+// const { Image } = require('../server/modules/image/image.model');
+// const { Deployment } = require('../server/modules/deployment/deployment.model');
 const mongoose = require('mongoose');
 
 const user = {
@@ -12,6 +15,8 @@ const user = {
     email: `a@a.a`,
   }
 }
+let communityTitle;
+
 
 describe("Test the root path", () => {
 
@@ -31,25 +36,16 @@ describe("Test the root path", () => {
     })
     config.mongooseInit(mongoose, config.mongoUri)
 
-    // await config.mongooseInit(
-    //   mongoose,
-    // )
-
-    // if (true) {
     await User.deleteMany();
-    // await Image.deleteMany();
-    // await Deployment.deleteMany();
-    // }
+    await Keyword.deleteMany();
+    await Community.deleteMany();
+    await Post.deleteMany();
+
   });
 
   afterAll((done) => {
     mongoose.disconnect();
     // server.close(done);
-  });
-
-  test("It should response the GET method", async () => {
-    const response = await request(app).get("/api/user/loopback");
-    expect(response.statusCode).toBe(200);
   });
 
   test("signup", async () => {
@@ -58,6 +54,7 @@ describe("Test the root path", () => {
       .send(user.credentials);
 
     expect(response.statusCode).toBe(201);
+    user._id = response.body._id
   });
 
   test("signin", async () => {
@@ -81,107 +78,162 @@ describe("Test the root path", () => {
 
   test("pass with bearer token", async () => {
     const response = await request(app)
-      .get("/api/user/secured-loopback")
+      .get("/api/auth/secured-api-example")
       .set('Authorization', 'Bearer ' + user.token)
 
     expect(response.statusCode).toBe(200);
   });
 
-  test("create new image", async () => {
+  test("add keywords", async () => {
     const response = await request(app)
-      .post("/api/image")
+      .post("/api/keyword")
+      .set('Authorization', 'Bearer ' + user.token)
+      .send([
+        'word1',
+        'word2',
+      ])
+
+    expect(response.statusCode).toBe(201);
+
+  });
+
+  test("list keywords", async () => {
+    const response = await request(app)
+      .get("/api/auth/secured-api-example")
+      .set('Authorization', 'Bearer ' + user.token)
+
+    expect(response.statusCode).toBe(200);
+    // expect(response.body.keywords).toBe(200);
+    // ['word1', 'word2', 'word3']
+    // expect(new Set(["pink wool", "diorite"])).toEqual(new Set(["diorite", "pink wool"]));
+
+  });
+
+  test("add community", async () => {
+    communityTitle = randomSuffix("public-group-") //community  title must be unique 
+    const response = await request(app)
+      .post("/api/community")
       .set('Authorization', 'Bearer ' + user.token)
       .send({
-        name: "a7",
-        repository: "myRepo",
-        version: "1.1.2",
-        metadata: {
-          a: 1,
-          b: 1
+        title: communityTitle
+      })
+
+    expect(response.statusCode).toBe(201);
+  });
+
+  test("list communities", async () => {
+    const response = await request(app)
+      .get("/api/community")
+      .set('Authorization', 'Bearer ' + user.token)
+
+    printIfError(response)
+    expect(response.statusCode).toBe(200);
+  });
+
+  test("deny post without membership", async () => {
+    const url = `/api/post/${communityTitle}`;
+
+    const response = await request(app)
+      .post(url)
+      .set('Authorization', 'Bearer ' + user.token)
+      .send()
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  test("request community membership ", async () => {
+    const url = `/api/community/member-request/${communityTitle}`;
+
+    const response = await request(app)
+      .patch(url)
+      .set('Authorization', 'Bearer ' + user.token)
+      .send()
+
+    printIfError('PATCH', url, response)
+    expect(response.statusCode).toBe(200);
+  });
+
+  test("deny 2nd request community membership", async () => {
+    const url = `/api/community/member-request/${communityTitle}`;
+
+    const response = await request(app)
+      .patch(url)
+      .set('Authorization', 'Bearer ' + user.token)
+      .send()
+
+    // printIfError('PATCH', url, response)
+    expect(response.statusCode).toBe(400);
+  });
+
+  test("approve community membership ", async () => {
+    const url = `/api/community/member-approve/${communityTitle}`;
+
+    const response = await request(app)
+      .patch(url)
+      .set('Authorization', 'Bearer ' + user.token)
+      .send({ pendingMember: user._id })
+
+    printIfError(response)
+    expect(response.statusCode).toBe(200);
+  });
+
+  test("deny 2nd approve community membership ", async () => {
+    const url = `/api/community/member-approve/${communityTitle}`;
+
+    const response = await request(app)
+      .patch(url)
+      .set('Authorization', 'Bearer ' + user.token)
+      .send({ pendingMember: user._id })
+
+    printIfError(response)
+    expect(response.statusCode).toBe(400);
+  });
+
+  test("add post", async () => {
+    const url = `/api/post/${communityTitle}`;
+
+    const response = await request(app)
+      .post(url)
+      .set('Authorization', 'Bearer ' + user.token)
+      .send({
+        post: {
+          title: randomSuffix("my post title-"), // title must be unique  
+          community: communityTitle,
+          body: "my post body text includes word1 word2 word3.",
         }
       })
 
-    expect(response.statusCode).toBe(200);
+    printIfError(response)
+    expect(response.statusCode).toBe(201);
   });
 
-  test("update exsiting image", async () => {
+  test("list post", async () => {
+    const url = `/api/post/${communityTitle}`
+
     const response = await request(app)
-      .post("/api/image")
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({
-        name: "a7",
-        repository: "myRepo",
-        version: "1.1.3",
-        metadata: {
-          a: 1,
-          b: 1
-        }
-      })
-
-    expect(response.statusCode).toBe(200);
-  });
-
-  test("list images", async () => {
-    const response = await request(app)
-      .get("/api/image")
-      .set('Authorization', 'Bearer ' + user.token)
-      .query({
-        pageIndex: 0,
-        pageSize: 2,
-        orderBy: '_id',
-        orderDirection: 1,
-      })
-
-    expect(response.statusCode).toBe(200);
-    expect(Array.isArray(response.body)).toBeTruthy();
-    expect(response.body[0]._id).toBeTruthy();
-    user.imageId = response.body[0]._id
-  });
-
-  test("deploy images", async () => {
-    const response = await request(app)
-      .post("/api/deployment/" + user.imageId)
+      .get(url)
       .set('Authorization', 'Bearer ' + user.token)
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.count).toBeGreaterThan(0);
-    user.deployment = response.body.result._id
-
+    // console.log('tester-->', response.body)
   });
 
-
-  test("list deployments", async () => {
-    const response = await request(app)
-      .get("/api/deployment")
-      .set('Authorization', 'Bearer ' + user.token)
-      .query({
-        pageIndex: 0,
-        pageSize: 2,
-        orderBy: '_id',
-        orderDirection: 1,
-      })
-
-    expect(response.statusCode).toBe(200);
-    expect(Array.isArray(response.body)).toBeTruthy();
-  });
-
-  test("count deployments", async () => {
-    const response = await request(app)
-      .get("/api/deployment/count")
-      .set('Authorization', 'Bearer ' + user.token)
-
-    expect(response.statusCode).toBe(200);
-  });
-
-  test("get combinations", async () => {
-    const response = await request(app)
-      .get("/api/deployment/combi")
-      .set('Authorization', 'Bearer ' + user.token)
-      .query({ size: 3 })
-
-    console.log(response.body);
-    expect(response.statusCode).toBe(200);
-    expect(response.body.result.length).toBeGreaterThan(0);
-  });
 
 });
+
+function printIfError(response, method = '', url = '') {
+  if (response.statusCode >= 400) {
+    console.log(
+      method,
+      url,
+      response.statusCode,
+      response.req.method,
+      response.req.path,
+      response.body
+    )
+  }
+}
+
+function randomSuffix(prefix) {
+  return '' + prefix + Math.floor(Math.random() * 10000)
+}

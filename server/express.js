@@ -42,7 +42,7 @@ app.use('/api/keyword', wordRouter);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(require('./docs')));
 
 app.use('*', (req, res) => {
-  res.status(400).send({ status: 'returned by catch-all route' })
+  res.status(400).send({ error: 'incorrect URL - returned by catch-all handler' })
 })
 
 // Catch unauthorised errors

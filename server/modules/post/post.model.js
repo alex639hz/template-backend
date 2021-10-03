@@ -49,6 +49,12 @@ const PostSchema = new mongoose.Schema({
     default: 'pending'
   },
 
+  country: {
+    type: String,
+    default: 'None'
+  },
+
+
 }, { timestamps: true })
 
 module.exports = {
