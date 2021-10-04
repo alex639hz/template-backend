@@ -27,7 +27,7 @@ const signin = async (req, res) => {
      *  cookie is injected into req.auth by requireSignin middleware
      */
     const payload = {
-      _id: user._id
+      _id: user._id,
     }
     const token = jwt.sign(payload, config.jwtSecret)
 
@@ -37,7 +37,8 @@ const signin = async (req, res) => {
 
     return res.status('200').json({
       token,
-      _id: user._id
+      _id: user._id,
+      country: user.country,
     })
   } catch (err) {
     return res.status('401').json({

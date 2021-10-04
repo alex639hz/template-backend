@@ -24,7 +24,7 @@ const postByID = async (req, res, next, id) => {
 }
 
 const create = async (req, res) => {
-  req.body.post.country = req.profile.country;
+  // req.body.post.country = req.profile.country;
 
   const post = new Post(req.body.post)
 
@@ -75,11 +75,11 @@ const read = (req, res) => {
  * 
  * Post A author is from the same country as the requesting user, post B isn’t. A is ranked higher then B (returned first in the array) even if B has a higher weighted score
  * Post A and B authors are from the same country as the requesting user. The post with the highest weighted score is returned first
- * Post A and B authors are not from the same country as the requesting user. The post with the highest weighted score is returned first
-
-No posts are found from one of the users communities - the feed is empty (empty array response)
-
- 
+ * Post A and B authors are not from the same country as the requesting user. The post with the highest weighted score is returned first 
+ * No posts are found from one of the users communities - the feed is empty (empty array response)
+ * 
+ * query-1 find({community,country})
+ * query-1 find({community,country : {$ne: req.profile.country}})
 
  * @param {*} req 
  * @param {*} res 
@@ -88,21 +88,88 @@ No posts are found from one of the users communities - the feed is empty (empty 
 const list = async (req, res) => {
 
   const { community } = req;
-
+  let arr = []
+  const pageSize = 2;
+  const pageIndex = 0;
   // console.log('server->', community)
+  arr = await Post.aggregate(
+    [
+      { $sort: { country: -1, posts: 1 } }
+    ]
+  )
+
+  arr = await Post.aggregate()
 
   try {
-    let posts = await Post.find(
+    arr = await Post.find(
       { country: req.profile.country },
-      {},
-      {},
+      {
+        title: true,
+        summary: true,
+        body: true,
+        country: true,
+        likes: true
+      },
+      {
+        lean: true,
+      },
     )
+      .limit(pageSize)
+      .skip(pageSize * pageSize)
+      .sort({ score: -1 })
       .select('title summary body community likes author status')
+
+    if (!localPosts.length < pageSize) {
+      let nonLocalPosts = await Post.find(
+        { country: { $ne: req.profile.country } },
+        {
+          title: true,
+          summary: true,
+          body: true,
+          country: true,
+          likes: true
+        },
+        {
+          lean: true,
+        },
+      )
+        .limit(pageSize - localPosts.length)
+        .skip(pageSize * pageSize)
+        .sort({ score: -1 })
+        .select('title summary body community likes author status')
+
+    }
+    // else (){}
+
+    arr = [...localPosts, ...nonLocalPosts]
+
+    let nonLocalPosts = await Post.find(
+      { country: { $ne: req.profile.country } },
+      {
+        title: true,
+        summary: true,
+        body: true,
+        country: true,
+        likes: true
+      },
+      { lean: true },
+    ).select('title summary body community likes author status')
+
+    // arr = [...localPosts, ...nonLocalPosts]
+
+    // console.log(
+    //   '99987-->',
+    //   arr
+    // )
+
     res.json({
       community: req.community,
-      posts,
+      arr,
     })
+
+
   } catch (err) {
+    console.log(err)
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err)
     })

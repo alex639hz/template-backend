@@ -64,7 +64,7 @@ describe("Test the root path", () => {
 
     expect(response.statusCode).toBe(200);
     user.token = response.body.token
-    user.payload = response.body.payload
+    user.country = response.body.country
   });
 
   test("faile without Bearer token", async () => {
@@ -189,8 +189,10 @@ describe("Test the root path", () => {
     expect(response.statusCode).toBe(400);
   });
 
-  test("add post", async () => {
+  test("add IL post 1/3", async () => {
     const url = `/api/post/${communityTitle}`;
+
+    console.log(user)
 
     const response = await request(app)
       .post(url)
@@ -199,6 +201,8 @@ describe("Test the root path", () => {
         post: {
           title: randomSuffix("my post title-"), // title must be unique  
           community: communityTitle,
+          country: user.country,
+          score: scoreCalculator(50, 100, 100, 200),
           body: "my post body text includes word1 word2 word3.",
         }
       })
@@ -206,6 +210,32 @@ describe("Test the root path", () => {
     printIfError(response)
     expect(response.statusCode).toBe(201);
   });
+
+
+
+  test("add US post 1/3", async () => {
+    const url = `/api/post/${communityTitle}`;
+
+    console.log(user)
+
+    const response = await request(app)
+      .post(url)
+      .set('Authorization', 'Bearer ' + user.token)
+      .send({
+        post: {
+          title: randomSuffix("my post title-"), // title must be unique  
+          community: communityTitle,
+          country: 'US',
+          body: "my post body text includes word1 word2 word3.",
+        }
+      })
+
+    printIfError(response)
+    expect(response.statusCode).toBe(201);
+  });
+
+
+
 
   test("list post", async () => {
     const url = `/api/post/${communityTitle}`
@@ -236,4 +266,8 @@ function printIfError(response, method = '', url = '') {
 
 function randomSuffix(prefix) {
   return '' + prefix + Math.floor(Math.random() * 10000)
+}
+
+function scoreCalculator(likesCounter, maxLikesCounter, postLength, maxPostLength) {
+  return (likesCounter / maxLikesCounter) * 80 + (postLength / maxPostLength) * 20
 }
