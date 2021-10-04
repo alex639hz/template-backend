@@ -15,8 +15,17 @@ const user = {
     email: `a@a.a`,
   }
 }
-let communityTitle;
+/** user object example:
+{
+  credentials: { password: 'aaaaaa', email: 'a@a.a' },
+  _id: '615a9d1f98f842f6572d8625',
+  token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTVhOWQxZjk4Zjg0MmY2NTcyZDg2MjUiLCJpYXQiOjE2MzMzMjg0MTV9.ke-0u6sL8fJXzzSTkKRWGI1xiBlDT5ijv82tHZYPK30',
+  country: 'IL'
+}
+ */
 
+const communityTitle = randomSuffix("public-group-");
+const posts = generatePost(communityTitle)
 
 describe("Test the root path", () => {
 
@@ -110,7 +119,6 @@ describe("Test the root path", () => {
   });
 
   test("add community", async () => {
-    communityTitle = randomSuffix("public-group-") //community  title must be unique 
     const response = await request(app)
       .post("/api/community")
       .set('Authorization', 'Bearer ' + user.token)
@@ -122,8 +130,10 @@ describe("Test the root path", () => {
   });
 
   test("list communities", async () => {
+    const url = "/api/community";
+
     const response = await request(app)
-      .get("/api/community")
+      .get(url)
       .set('Authorization', 'Bearer ' + user.token)
 
     printIfError(response)
@@ -149,7 +159,7 @@ describe("Test the root path", () => {
       .set('Authorization', 'Bearer ' + user.token)
       .send()
 
-    printIfError('PATCH', url, response)
+    printIfError(response)
     expect(response.statusCode).toBe(200);
   });
 
@@ -161,7 +171,6 @@ describe("Test the root path", () => {
       .set('Authorization', 'Bearer ' + user.token)
       .send()
 
-    // printIfError('PATCH', url, response)
     expect(response.statusCode).toBe(400);
   });
 
@@ -185,57 +194,88 @@ describe("Test the root path", () => {
       .set('Authorization', 'Bearer ' + user.token)
       .send({ pendingMember: user._id })
 
-    printIfError(response)
     expect(response.statusCode).toBe(400);
   });
 
-  test("add IL post 1/3", async () => {
-    const url = `/api/post/${communityTitle}`;
-
-    console.log(user)
-
-    const response = await request(app)
-      .post(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({
-        post: {
-          title: randomSuffix("my post title-"), // title must be unique  
-          community: communityTitle,
-          country: user.country,
-          score: scoreCalculator(50, 100, 100, 200),
-          body: "my post body text includes word1 word2 word3.",
-        }
-      })
-
-    printIfError(response)
-    expect(response.statusCode).toBe(201);
-  });
 
 
+  posts.map((post) => { //generate posts collection
+    test("generate posts collection", async () => {
+      const url = `/api/post/${communityTitle}`;
 
-  test("add US post 1/3", async () => {
-    const url = `/api/post/${communityTitle}`;
+      const response = await request(app)
+        .post(url)
+        .set('Authorization', 'Bearer ' + user.token)
+        .send({ post })
 
-    console.log(user)
-
-    const response = await request(app)
-      .post(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({
-        post: {
-          title: randomSuffix("my post title-"), // title must be unique  
-          community: communityTitle,
-          country: 'US',
-          body: "my post body text includes word1 word2 word3.",
-        }
-      })
-
-    printIfError(response)
-    expect(response.statusCode).toBe(201);
-  });
+      printIfError(response)
+      expect(response.statusCode).toBe(201);
+    })
+  })
 
 
+  // });
 
+  // test("add IL post 2/3", async () => {
+  //   const url = `/api/post/${communityTitle}`;
+  //   const response = await request(app)
+  //     .post(url)
+  //     .set('Authorization', 'Bearer ' + user.token)
+  //     .send({
+  //       post: {
+  //         title: randomSuffix("my post title-"), // title must be unique  
+  //         community: communityTitle,
+  //         country: user.country,
+  //         score: scoreCalculator(50, 100, 100, 200),
+  //         body: "my post body text includes word1 word2 word3.",
+  //       }
+  //     })
+
+  //   printIfError(response)
+  //   expect(response.statusCode).toBe(201);
+  // });
+
+  // test("add IL post 3/3", async () => {
+  //   const url = `/api/post/${communityTitle}`;
+
+  //   // console.log(user)
+
+  //   const response = await request(app)
+  //     .post(url)
+  //     .set('Authorization', 'Bearer ' + user.token)
+  //     .send({
+  //       post: {
+  //         title: randomSuffix("my post title-"), // title must be unique  
+  //         community: communityTitle,
+  //         country: user.country,
+  //         score: scoreCalculator(50, 100, 100, 200),
+  //         body: "my post body text includes word1 word2 word3.",
+  //       }
+  //     })
+
+  //   printIfError(response)
+  //   expect(response.statusCode).toBe(201);
+  // });
+
+  // for (let i = 0; i < 3; i++) {
+  //   test("add US post 1/3", async () => {
+  //     const url = `/api/post/${communityTitle}`;
+  //     const response = await request(app)
+  //       .post(url)
+  //       .set('Authorization', 'Bearer ' + user.token)
+  //       .send({
+  //         post: {
+  //           title: randomSuffix("my post title-"), // title must be unique  
+  //           community: communityTitle,
+  //           country: 'US',
+  //           body: "my post body text includes word1 word2 word3.",
+  //         }
+  //       })
+
+  //     printIfError(response)
+  //     expect(response.statusCode).toBe(201);
+  //   });
+  // }
 
   test("list post", async () => {
     const url = `/api/post/${communityTitle}`
@@ -244,22 +284,20 @@ describe("Test the root path", () => {
       .get(url)
       .set('Authorization', 'Bearer ' + user.token)
 
+    console.log(response.body)
     expect(response.statusCode).toBe(200);
     // console.log('tester-->', response.body)
   });
 
-
 });
 
-function printIfError(response, method = '', url = '') {
+function printIfError(response) {
   if (response.statusCode >= 400) {
     console.log(
-      method,
-      url,
+      `${response.req.method}`,
+      `${response.req.path}`,
       response.statusCode,
-      response.req.method,
-      response.req.path,
-      response.body
+      response.body,
     )
   }
 }
@@ -271,3 +309,52 @@ function randomSuffix(prefix) {
 function scoreCalculator(likesCounter, maxLikesCounter, postLength, maxPostLength) {
   return (likesCounter / maxLikesCounter) * 80 + (postLength / maxPostLength) * 20
 }
+
+function generatePost(communityTitle) {
+  return [
+    {
+      title: randomSuffix("my post title-"), // title must be unique  
+      community: communityTitle,
+      country: 'IL',
+      score: scoreCalculator(50, 100, 100, 200),
+      body: "my post body text includes word1 word2 word3.",
+    },
+    {
+      title: randomSuffix("my post title-"), // title must be unique  
+      community: communityTitle,
+      country: 'IL',
+      score: scoreCalculator(50, 100, 100, 200),
+      body: "my post body text includes word1 word2 .",
+    },
+    {
+      title: randomSuffix("my post title-"), // title must be unique  
+      community: communityTitle,
+      country: 'IL',
+      score: scoreCalculator(50, 100, 100, 200),
+      body: "my post body text includes word1 .",
+    },
+    {
+      title: randomSuffix("my post title-"), // title must be unique  
+      community: communityTitle,
+      country: 'US',
+      score: scoreCalculator(50, 100, 100, 200),
+      body: "my post body text includes word1 word2 word3.",
+    },
+    {
+      title: randomSuffix("my post title-"), // title must be unique  
+      community: communityTitle,
+      country: 'US',
+      score: scoreCalculator(50, 100, 100, 200),
+      body: "my post body text includes word1 .",
+    },
+    {
+      title: randomSuffix("my post title-"), // title must be unique  
+      community: communityTitle,
+      country: 'US',
+      score: scoreCalculator(50, 100, 100, 200),
+      body: "my post body text includes word1 word2 .",
+    }
+  ]
+
+}
+

@@ -24,6 +24,8 @@ mongoose.connect(config.mongoUris[0],
     useFindAndModify: false
   })
 
+console.log('mongoDB: ', config.mongoUris[0])
+
 mongoose.connection.on('error', () => {
   throw new Error(`unable to connect to database: ${config.mongoUri}`)
 })
@@ -82,7 +84,8 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
-  console.log('Listening on ' + bind)
+  console.log('Listening on ' + `http://localhost:${addr.port}`)
+  console.log('Swagger on ' + `http://localhost:${addr.port}/api-docs`)
 }
 
 config.mongooseInit(mongoose, config.mongoUri)

@@ -4,7 +4,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/alexzabo85/enso-exam.git"
+    "url": "https://github.com/alex639hz/wisdo.git"
   },
   "scripts": {
     "alert-service": "node ./server/utils/alert",

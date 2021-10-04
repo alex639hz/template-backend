@@ -85,7 +85,38 @@ const read = (req, res) => {
  * @param {*} res 
  * @returns 
  */
+
+
 const list = async (req, res) => {
+  const myArr = await Post.aggregate(
+    [
+      // { $sort: { country: -1, posts: 1 } }
+      {
+        $group: {
+          _id: "$country",
+          titles: { $push: "$title" },
+        }
+      },
+      { $sort: { "title": -1 } },
+      // {
+      // $bucket: {
+      // groupBy: "$country",                        // Field to group by
+      // boundaries: ['IL', ''], // Boundaries for the buckets
+      // default: "Other",                             // Bucket id for documents which do not fall into a bucket
+      // output: {                                     // Output for each bucket
+      // "count": { $sum: 1 },
+      // "title": "$title",
+      // }
+      // },
+    ]
+  )
+
+  res.json({
+    ...myArr,
+  })
+
+}
+const list_ORG = async (req, res) => {
 
   const { community } = req;
   let arr = []
@@ -94,7 +125,9 @@ const list = async (req, res) => {
   // console.log('server->', community)
   arr = await Post.aggregate(
     [
-      { $sort: { country: -1, posts: 1 } }
+      // { $sort: { country: -1, posts: 1 } }
+      { $group: { _id: "$country" } },
+
     ]
   )
 
