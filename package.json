@@ -4,7 +4,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/alexzabo85/enso-exam.git"
+    "url": "https://github.com/alex639hz/wisdo.git"
   },
   "scripts": {
     "alert-service": "node ./server/utils/alert",
@@ -12,7 +12,7 @@
     "dev": "clear && concurrently --kill-others \"npm run redis\" \"npm run alert-service\" \"npm run server\"",
     "server": "nodemon",
     "start": "set NODE_ENV=production &&  node ./server/write &&  node ./bin/www",
-    "close-port": "kill $(lsof -t -i:8080)",
+    "close-port": "kill $(lsof -t -i:6379)",
     "test": "clear && ./node_modules/jest/bin/jest.js ./tests/main.test.js --forceExit  --detectOpenHandles"
   },
   "dependencies": {

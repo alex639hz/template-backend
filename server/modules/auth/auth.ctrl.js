@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const expressJwt = require('express-jwt');
 const config = require('../../config/config');
 const { User } = require('../user/user.model');
-const { Community } = require('../community/community.model');
+// const { Community } = require('../community/community.ctrl');
 // const Acc = require('../models/account.model');
 
 const signin = async (req, res) => {
@@ -27,7 +27,7 @@ const signin = async (req, res) => {
      *  cookie is injected into req.auth by requireSignin middleware
      */
     const payload = {
-      _id: user._id
+      _id: user._id,
     }
     const token = jwt.sign(payload, config.jwtSecret)
 
@@ -37,7 +37,8 @@ const signin = async (req, res) => {
 
     return res.status('200').json({
       token,
-      _id: user._id
+      _id: user._id,
+      country: user.country,
     })
   } catch (err) {
     return res.status('401').json({
@@ -77,10 +78,10 @@ const authorizedToUpdateProfile = (req, res, next) => {
 }
 
 const authorizedToPost = async (req, res, next) => {
-
-  const members = req.community.members
-  const authorized = members.indexOf(req.body.post.community) >= 0
-
+  let authorized = 1
+  // const members = req.community.members
+  // const authorized = members.indexOf(req.community.title) >= 0
+  commCtrl.isMember()
   if (!(authorized)) {
     return res.status('403').json({
       error: "User not authorized to post: must be a community member."
@@ -88,10 +89,9 @@ const authorizedToPost = async (req, res, next) => {
     })
   }
   next()
-
 }
 
-const authorizedToPost = async (req, res, next) => {
+const isModerator = async (req, res, next) => {
   next()
 }
 

@@ -1,13 +1,11 @@
 const extend = require('lodash/extend');
 const { Post } = require('./post.model');
 const { Keyword } = require('../keyword/keyword.model');
-const { Community } = require('../community/community.model');
 const errorHandler = require('../../helpers/dbErrorHandler');
 const Redis = require('ioredis');
 const { keywordAlertTopic } = require('../../config/config').topicsNames
 
 const redisPub = new Redis()
-
 
 const postByID = async (req, res, next, id) => {
   try {
@@ -26,18 +24,12 @@ const postByID = async (req, res, next, id) => {
 }
 
 const create = async (req, res) => {
-
-  req.body.post.community = req.community.title
-
-  if (!req.body.post.summary) {
-    req.body.post.summary = (req.body.post.body + '').substr(0, 5) + '...'
-  }
+  // req.body.post.country = req.profile.country;
 
   const post = new Post(req.body.post)
 
-  try {
-    await post.save()
-  } catch (err) {
+  try { await post.save() }
+  catch (err) {
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err)
     })
@@ -47,8 +39,10 @@ const create = async (req, res) => {
   let keywords = []
 
   try {
-    keywords = (await Keyword.find({ keyword: { $in: content } }).select("keyword").lean())
-      .map(elem => elem.keyword)
+    keywords = (await Keyword.find({ keyword: { $in: content } })
+      .select("keyword")
+      .lean()
+    ).map(elem => elem.keyword)
 
     if (keywords.length) redisPub.publish(keywordAlertTopic, `${JSON.stringify(keywords)}`)
 
@@ -57,8 +51,6 @@ const create = async (req, res) => {
       error: "Could not retrieve keywords"
     })
   }
-
-
 
   return res.status(201).json({
     message: "Post created successfully!",
@@ -75,24 +67,142 @@ const read = (req, res) => {
 }
 
 /** list posts 
- *  
+ * DONE: A section In the app where the user sees posts which are “recommended” to him. Ranked by “relevance” score - descending 
  * 
+ * DONE: The Feed should only include posts which belong to one of the requesting user’s communities
+ * 
+ * The algorithm for this feature should rank posts where the post author is from the same country first, then based on the following weighted score - 80% “like” count + 20% post length.
+ * 
+ * Post A author is from the same country as the requesting user, post B isn’t. A is ranked higher then B (returned first in the array) even if B has a higher weighted score
+ * Post A and B authors are from the same country as the requesting user. The post with the highest weighted score is returned first
+ * Post A and B authors are not from the same country as the requesting user. The post with the highest weighted score is returned first 
+ * No posts are found from one of the users communities - the feed is empty (empty array response)
+ * 
+ * query-1 find({community,country})
+ * query-1 find({community,country : {$ne: req.profile.country}})
+
  * @param {*} req 
  * @param {*} res 
  * @returns 
  */
-const list = async (req, res) => {
 
-  const communityTitle = req.community.title
-  const communityMembers = req.community.members
+
+const list = async (req, res) => {
+  const myArr = await Post.aggregate(
+    [
+      // { $sort: { country: -1, posts: 1 } }
+      {
+        $group: {
+          _id: "$country",
+          titles: { $push: "$title" },
+        }
+      },
+      { $sort: { "title": -1 } },
+      // {
+      // $bucket: {
+      // groupBy: "$country",                        // Field to group by
+      // boundaries: ['IL', ''], // Boundaries for the buckets
+      // default: "Other",                             // Bucket id for documents which do not fall into a bucket
+      // output: {                                     // Output for each bucket
+      // "count": { $sum: 1 },
+      // "title": "$title",
+      // }
+      // },
+    ]
+  )
+
+  res.json({
+    ...myArr,
+  })
+
+}
+const list_ORG = async (req, res) => {
+
+  const { community } = req;
+  let arr = []
+  const pageSize = 2;
+  const pageIndex = 0;
+  // console.log('server->', community)
+  arr = await Post.aggregate(
+    [
+      // { $sort: { country: -1, posts: 1 } }
+      { $group: { _id: "$country" } },
+
+    ]
+  )
+
+  arr = await Post.aggregate()
 
   try {
-    let posts = await Post.find({}).select('title summary body community likes author status')
+    arr = await Post.find(
+      { country: req.profile.country },
+      {
+        title: true,
+        summary: true,
+        body: true,
+        country: true,
+        likes: true
+      },
+      {
+        lean: true,
+      },
+    )
+      .limit(pageSize)
+      .skip(pageSize * pageSize)
+      .sort({ score: -1 })
+      .select('title summary body community likes author status')
+
+    if (!localPosts.length < pageSize) {
+      let nonLocalPosts = await Post.find(
+        { country: { $ne: req.profile.country } },
+        {
+          title: true,
+          summary: true,
+          body: true,
+          country: true,
+          likes: true
+        },
+        {
+          lean: true,
+        },
+      )
+        .limit(pageSize - localPosts.length)
+        .skip(pageSize * pageSize)
+        .sort({ score: -1 })
+        .select('title summary body community likes author status')
+
+    }
+    // else (){}
+
+    arr = [...localPosts, ...nonLocalPosts]
+
+    let nonLocalPosts = await Post.find(
+      { country: { $ne: req.profile.country } },
+      {
+        title: true,
+        summary: true,
+        body: true,
+        country: true,
+        likes: true
+      },
+      { lean: true },
+    ).select('title summary body community likes author status')
+
+    // arr = [...localPosts, ...nonLocalPosts]
+
+    // console.log(
+    //   '99987-->',
+    //   arr
+    // )
+
     res.json({
       community: req.community,
-      posts,
+      arr,
     })
+
+
   } catch (err) {
+    console.log(err)
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err)
     })

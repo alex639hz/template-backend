@@ -19,7 +19,8 @@ router.route('/:community')
   .post(
     authCtrl.requireSignin,
     function (req, res, next) { userCtrl.userByID(req, res, next, req.auth._id) },  // injecting req.profile
-    authCtrl.authorizedToPost, // validate user is a member of a community
+    function (req, res, next) { commCtrl.isMember(req, res, next, req.community.title) },  // injecting req.profile
+    //authCtrl.authorizedToPost, // validate user is a member of a community
     postCtrl.create)
   .get(
     authCtrl.requireSignin,

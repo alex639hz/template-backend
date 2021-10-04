@@ -14,6 +14,8 @@ router.route('')
   .post(
     authCtrl.requireSignin,
     keywordCtrl.create)
-// .get(authCtsrl.requireSignin, postCtrl.list)
+  .get(
+    authCtrl.requireSignin,
+    keywordCtrl.list)
 
 module.exports = router;

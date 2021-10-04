@@ -23,7 +23,7 @@ const create = async (req, res) => {
  */
 const communityByTitle = async (req, res, next, title) => {
   try {
-    req.community = await Community.findOne({ title })
+    req.community = await Community.findOne({ title }, 'title')
     if (!req.community)
       return res.status('400').json({
         error: "Community not found"
@@ -31,7 +31,35 @@ const communityByTitle = async (req, res, next, title) => {
     next()
   } catch (err) {
     return res.status('400').json({
-      error: "Could not retrieve community"
+      error: "Could not retrieve community",
+      catch: err
+    })
+  }
+}
+
+const isMember = async (req, res, next, title) => {
+  try {
+    const isMember = await Community.findOne(
+      {
+        title,
+        members: req.auth._id
+      }
+    )
+
+    // console.log(
+    //   'server--->',
+    //   req.auth._id,
+    //   req.community,
+    //   isMember
+    // )
+
+    if (isMember) next()
+    else throw 1
+
+  } catch (err) {
+    return res.status('400').json({
+      error: 'User not a community member',
+      catch: err
     })
   }
 }
@@ -83,23 +111,50 @@ const remove = async (req, res) => {
   }
 }
 
-
-
-const membershipRequest = async (req, res) => {
+const requestMembership = async (req, res) => {
   try {
-    let communities = await Community.find().select('title')
-    res.json(communities)
+    let community = await Community.findOneAndUpdate(
+      {
+        title: req.community.title,
+        members: { $ne: req.auth._id },
+        pendingMembers: { $ne: req.auth._id },
+      },
+      {
+        $addToSet: {
+          pendingMembers: req.auth._id
+        }
+      },
+      { new: true }
+    )
+
+    res.json(community.pendingMembers)
   } catch (err) {
     return res.status(400).json({
-      error: errorHandler.getErrorMessage(err)
+      error: errorHandler.getErrorMessage(err),
+      err
     })
   }
 }
 
-const approveMembershipRequest = async (req, res) => {
+const approveMembership = async (req, res) => {
   try {
-    let communities = await Community.find().select('title')
-    res.json(communities)
+    let community = await Community.findOneAndUpdate(
+      {
+        title: req.community.title,
+        members: { $ne: req.auth._id },
+        pendingMembers: req.body.pendingMember
+      },
+      {
+        $addToSet: {
+          members: req.body.pendingMember
+        },
+        $pull: {
+          pendingMembers: req.body.pendingMember
+        }
+      },
+      { new: true }
+    )
+    res.json(community.pendingMembers)
   } catch (err) {
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err)
@@ -115,6 +170,7 @@ module.exports = {
   list,
   remove,
   update,
-  membershipRequest,
-  approveMembershipRequest,
+  requestMembership,
+  approveMembership,
+  isMember,
 }
