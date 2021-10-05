@@ -7,7 +7,7 @@ const { Community } = require('../server/modules/community/community.model');
 const { Post } = require('../server/modules/post/post.model');
 const mongoose = require('mongoose');
 
-/** user object example:
+/** user object:
 {
   credentials: { password: 'aaaaaa', email: 'a@a.a' },
   _id: '615a9d1f98f842f6572d8625',
@@ -25,8 +25,21 @@ const user = {
 
 
 let communityTitle = "A"
-const posts = generatePost(communityTitle)
-
+let keywords = [
+  'word1',
+  'word2',
+]
+let postsA = [
+  generatePost("A", "US", 100, "word? word1 word2 word3"),
+  generatePost("A", "IL", 90, "word? word? word? word?"),
+  generatePost("A", "US", 80, "word? word? word? word?"),
+  generatePost("A", "IL", 70, "word? word? word? word?"),
+  generatePost("A", "IL", 60, "word? word? word? word?"),
+  generatePost("A", "US", 100, "word? word? word? word?"),
+  generatePost("A", "US", 98, "word? word? word? word?"),
+  // generatePost("B", "US", 90, "word? word? word? word?"),
+  // generatePost("B", "IL", 10, "word? word? word? word?"),
+]
 
 describe("Test the root path", () => {
 
@@ -99,10 +112,7 @@ describe("Test the root path", () => {
     const response = await request(app)
       .post("/api/keyword")
       .set('Authorization', 'Bearer ' + user.token)
-      .send([
-        'word1',
-        'word2',
-      ])
+      .send(keywords)
 
     printIfError(response)
     expect(response.statusCode).toBe(201);
@@ -119,36 +129,25 @@ describe("Test the root path", () => {
 
   });
 
-  test("add community A", async () => {
+  test("create community A", async () => {
     const url = "/api/community";
     const response = await request(app)
       .post(url)
       .set('Authorization', 'Bearer ' + user.token)
       .send({
-        title: communityTitle
+        title: "A"
       })
 
     printIfError(response)
     expect(response.statusCode).toBe(201);
   });
 
-  test("add community B", async () => {
+  test("create community B", async () => {
     const url = "/api/community";
     const response = await request(app)
       .post(url)
       .set('Authorization', 'Bearer ' + user.token)
       .send({ title: 'B' })
-
-    printIfError(response)
-    expect(response.statusCode).toBe(201);
-  });
-
-  test("add community C", async () => {
-    const url = "/api/community";
-    const response = await request(app)
-      .post(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({ title: 'C' })
 
     printIfError(response)
     expect(response.statusCode).toBe(201);
@@ -176,7 +175,6 @@ describe("Test the root path", () => {
     expect(response.statusCode).toBe(400);
   });
 
-
   test("request community A membership", async () => {
     const url = `/api/community/member-request/${communityTitle}`;
 
@@ -189,30 +187,7 @@ describe("Test the root path", () => {
     expect(response.statusCode).toBe(200);
   });
 
-  test("request community B membership", async () => {
-    const url = `/api/community/member-request/B`;
-
-    const response = await request(app)
-      .patch(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send()
-
-    printIfError(response)
-    expect(response.statusCode).toBe(200);
-  });
-
-  test("request community C membership", async () => {
-    const url = `/api/community/member-request/C`;
-
-    const response = await request(app)
-      .patch(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send()
-
-    printIfError(response)
-    expect(response.statusCode).toBe(200);
-  });
-
+  //TODO make sure 2nd request gets "waiting for approval" message and status 200
   test("deny 2nd request community membership", async () => {
     const url = `/api/community/member-request/${communityTitle}`;
 
@@ -236,18 +211,7 @@ describe("Test the root path", () => {
     expect(response.statusCode).toBe(200);
   });
 
-  test("approve community B membership ", async () => {
-    const url = `/api/community/member-approve/B`;
-
-    const response = await request(app)
-      .patch(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({ pendingMember: user._id })
-
-    printIfError(response)
-    expect(response.statusCode).toBe(200);
-  });
-
+  //TODO make sure 2nd request gets "alreadt approved" message and status 200
   test("deny 2nd approve community membership ", async () => {
     const url = `/api/community/member-approve/${communityTitle}`;
 
@@ -260,10 +224,11 @@ describe("Test the root path", () => {
   });
 
   //generate posts collection
-  posts.map((post) => {
-    test("generate a post", async () => {
-      const url = `/api/post/${communityTitle}`;
+  postsA.map((post, idx) => {
+    let postId = ""
 
+    test("create a post", async () => {
+      const url = `/api/post`;
       const response = await request(app)
         .post(url)
         .set('Authorization', 'Bearer ' + user.token)
@@ -271,19 +236,24 @@ describe("Test the root path", () => {
 
       printIfError(response)
       expect(response.statusCode).toBe(201);
+      expect(response.body.post.status).toBe("pending");
+
+      postId = response.body.post._id
     })
 
-    test("approve a post", async () => {
-      const url = `/api/post/${communityTitle}`;
+    if (idx % 2) {
+      test("approve a post", async () => {
+        const url = `/api/post/${postId}/approve`;
 
-      const response = await request(app)
-        .post(url)
-        .set('Authorization', 'Bearer ' + user.token)
-        .send({ post })
+        const response = await request(app)
+          .patch(url)
+          .set('Authorization', 'Bearer ' + user.token)
+          .send({ postId })
 
-      printIfError(response)
-      expect(response.statusCode).toBe(201);
-    })
+        printIfError(response)
+        expect(response.statusCode).toBe(200);
+      })
+    }
 
   })
 
@@ -304,11 +274,12 @@ describe("Test the root path", () => {
 
 });
 
-function printIfError(response) {
+function printIfError(response, label = '') {
   if (response.statusCode >= 400) {
     console.log(
       // response.req.method,
       // response.req.path,
+      label,
       response.statusCode,
       response.body,
     )
@@ -318,69 +289,18 @@ function printIfError(response) {
 function randomSuffix(prefix) {
   return '' + prefix + Math.floor(Math.random() * 10000)
 }
-
+//NOTE: scoreCalculator function is the example of how to calculate a score based on 
+// the post parameters and the rest of the posts 
 function scoreCalculator(likesCounter, maxLikesCounter, postLength, maxPostLength) {
   return (likesCounter / maxLikesCounter) * 80 + (1 - postLength / maxPostLength) * 20
 }
 
-function generatePost(communityTitle) {
-  return [
-    {
-      title: randomSuffix("my post title-"), // title must be unique  
-      community: communityTitle,
-      country: 'IL',
-      score: scoreCalculator(100, 100, 100, 200),
-      body: "my post body text includes word1 word2 word3.",
-    },
-    {
-      title: randomSuffix("my post title-"), // title must be unique  
-      community: communityTitle,
-      country: 'IL',
-      score: scoreCalculator(50, 100, 100, 200),
-      body: "my post body text includes word1 word2 .",
-    },
-    {
-      title: randomSuffix("my post title-"), // title must be unique  
-      community: 'other',
-      country: 'IL',
-      score: scoreCalculator(100, 100, 100, 200),
-      body: "my post body text includes word1 .",
-    },
-    {
-      title: randomSuffix("my post title-"), // title must be unique  
-      community: 'C',
-      country: 'IL',
-      score: scoreCalculator(100, 100, 10, 200),
-      body: "my post body text includes word1 .",
-    },
-    {
-      title: randomSuffix("my post title-"), // title must be unique  
-      community: communityTitle,
-      country: 'US',
-      score: scoreCalculator(50, 100, 50, 200),
-      body: "my post body text includes word1 word2 word3.",
-    },
-    {
-      title: randomSuffix("my post title-"), // title must be unique  
-      community: communityTitle,
-      country: 'US',
-      score: scoreCalculator(50, 100, 100, 200),
-      body: "my post body text includes word1 .",
-    },
-    {
-      title: randomSuffix("my post title-"), // title must be unique  
-      community: 'B',
-      country: 'US',
-      score: scoreCalculator(50, 100, 150, 200),
-      body: "my post body text includes word1 word2 .",
-    },
-    {
-      title: randomSuffix("my post title-"), // title must be unique  
-      community: 'C',
-      country: 'US',
-      score: scoreCalculator(50, 100, 150, 200),
-      body: "my post body text includes word1 word2 .",
-    }
-  ]
-
+function generatePost(community = '', country = '', score, body = '') {
+  return {
+    title: randomSuffix("title-"),
+    community,
+    country,
+    score,
+    body: "my post body text includes word1 word2 word3.",
+  }
 }

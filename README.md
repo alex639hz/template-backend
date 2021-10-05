@@ -95,74 +95,101 @@ resources:
 * community CRUD  
 * posts CRUD  
 
-Features:
-* Auth (generating JWT token on signin).  
-* Post uploading (as pending)  
-* Post approve pending by moderator (or super moderator)
-* Alert about detected keywords in post body using asynchronose service.
-* list post on a feed using special sorting:
-  * by community (user must be a member in and request feed from community )   
-  * by user country (higher priority for same post origin)  
-  * by score 80% likes + 20% post length
+Test Features:
+* Signup and signin (using JWT).  
+* add new keywords 
+* list all keywords 
+* create new community 
+* list community 
+* block posting request for non-member's   
+* request membership to join a community 
+* approve membership request to join community (by moderator or super-moderator)
+* creat pending post in a community  
+* Alert about detected keywords in pending post using asynchronose notification service.
+* approve pending post in a community (by moderator or super-moderator)
+* list posts in a feed using special sorting:
+  * All post are related to user's community memberships 
+  * Posts from same country (user vs author country) is displayed first sorted by a numeric score system  
+  * Posts NOT from same origin country is displayed last sorted by a numeric score system
+    * score [0..100] is calculated using 80% likes + 20% post length
 
 
 Tools,libs:
-* Redis Pub/Sub (Asynchronose communication between services ).  
+* Redis Pub/Sub ( ).  
 * Jest (unit testing)
 * Postman (e2e)
+* mongoose (MongoDB interface)
+* Swagger (documentation)
 
 
 ### Built With
 
 Major frameworks used in the project. Add-ons/plugins described in acknowledgements section.
-* [Express](https://expressjs.com/)
-* [MongoDB](https://mongodb.com)
-* [Github](https://github.com)
-* [Redis](https://redis.io)
+* [Express](https://expressjs.com/) - back end web application framework for Node.js
+* [Jest](https://jest.com) - unit testing and e2e
+* [MongoDB](https://mongodb.com) - Non relation DB
+* [Redis](https://redis.io) - Asynchronose communication between services
+* [Git](https://git-scm.com/) - source contrl system
+* [Github](https://github.com) - remote repository
 
 
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
-run development server locally. in root folder run: 
+run development server locally. In root folder run: 
   ```sh
   npm run dev
   ```
 
-run automated test. in root folder run: 
+run automated test. In root folder run: 
   ```sh
   npm run test
+  ```
+
+run automated test. In root folder run: 
+  ```sh
+  npm run test_notification
+  ```
+
+run in production. In root folder run: 
+  ```sh
+  npm run start
   ```
 
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+* NodeJS + NPM 
+* MongoDB
+* Redis
+* Git
+ 
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
+<!-- 0. Get a free API Key at [https://example.com](https://example.com) -->
 
-2. Clone the repo
+1. Clone the repo <>
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   git clone https://github.com/alex639hz/wisdo.git
    ```
    change directory to root folder 
    ```sh
-   cd <Project-Name>
+   cd wisdo
    ```
 
 3. Install NPM packages
    ```sh
    npm install
+   ```
+4. testing without notification service
+   ```sh
+   npm run test
+   ```
+5. testing without notification service
+   ```sh
+   npm run test_notification
    ```
 
 <!-- 4. Enter your API in `config.js`
@@ -202,43 +229,34 @@ Contributions are what make the open source community such an amazing place to l
 
 
 <!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-
+<!-- ## License -->
+<!-- Distributed under the MIT License. See `LICENSE` for more information. -->
 
 <!-- CONTACT -->
 ## Contact
-
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
-
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
-
-
+<!-- Alex Zvuluny - [@your_twitter](https://twitter.com/your_username) - email@example.com -->
+<!-- Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name) -->
 
 <!-- ACKNOWLEDGEMENTS -->
-## Acknowledgements
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Img Shields](https://shields.io)
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Pages](https://pages.github.com)
-* [Animate.css](https://daneden.github.io/animate.css)
-* [Loaders.css](https://connoratherton.com/loaders)
-* [Slick Carousel](https://kenwheeler.github.io/slick)
-* [Smooth Scroll](https://github.com/cferdinandi/smooth-scroll)
-* [Sticky Kit](http://leafo.net/sticky-kit)
-* [JVectorMap](http://jvectormap.com)
-* [Font Awesome](https://fontawesome.com)
+<!-- ## Acknowledgements -->
+<!-- * [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet) -->
+<!-- * [Img Shields](https://shields.io) -->
+<!-- * [Choose an Open Source License](https://choosealicense.com) -->
+<!-- * [GitHub Pages](https://pages.github.com) -->
+<!-- * [Animate.css](https://daneden.github.io/animate.css) -->
+<!-- * [Loaders.css](https://connoratherton.com/loaders) -->
+<!-- * [Slick Carousel](https://kenwheeler.github.io/slick) -->
+<!-- * [Smooth Scroll](https://github.com/cferdinandi/smooth-scroll) -->
+<!-- * [Sticky Kit](http://leafo.net/sticky-kit) -->
+<!-- * [JVectorMap](http://jvectormap.com) -->
+<!-- * [Font Awesome](https://fontawesome.com) -->
 
 
 
 <!-- Links -->
 ## Links
-* [How to deploy nodejs to DigitalOcean](https://medium.com/@haxzie/deploying-node-js-application-to-digitalocean-setting-up-the-server-99e1d65fa291)
-
-
-
+* [Adding Typescript to Nodejs/Express](https://blog.logrocket.com/typescript-with-node-js-and-express/)
+* [Adding Docker to Nodejs/Express](https://www.digitalocean.com/community/tutorials/how-to-build-a-node-js-application-with-docker-on-ubuntu-20-04)
 
 
 
@@ -258,20 +276,3 @@ Project Link: [https://github.com/your_username/repo_name](https://github.com/yo
 [linkedin-url]: https://linkedin.com/in/alexzvuluny/
 [product-screenshot]: images/screenshot.png
 
-
-
-<!-- ABOUT THE PROJECT -->
-
-## Instructions
-
-### resources
-* User
-* Community
-* Post
-* Watchlist
-
-### features
-* Authentication + authorization (JWT)
-* Uploading posts - user-community authorisation 
-* Post content alert
-* Post feed  

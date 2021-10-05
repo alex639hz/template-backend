@@ -9,7 +9,7 @@ const redisPub = new Redis()
 
 const postByID = async (req, res, next, id) => {
   try {
-    let post = await Post.findById(id)
+    let post = await Post.findById(id).lean()
     if (!post)
       return res.status('400').json({
         error: "Post not found"
@@ -24,8 +24,6 @@ const postByID = async (req, res, next, id) => {
 }
 
 const create = async (req, res) => {
-  // req.body.post.country = req.profile.country;
-
   const post = new Post(req.body.post)
 
   try { await post.save() }
@@ -47,6 +45,7 @@ const create = async (req, res) => {
     if (keywords.length) redisPub.publish(keywordAlertTopic, `${JSON.stringify(keywords)}`)
 
   } catch (err) {
+    // TODO the handler should return keywords related error as a message 
     return res.status('400').json({
       error: "Could not retrieve keywords"
     })
@@ -306,6 +305,33 @@ const remove = async (req, res) => {
   }
 }
 
+const approvePost = async (req, res) => {
+  try {
+    const result = await Post.findOneAndUpdate({
+      _id: req.post._id,
+      status: "pending",
+    }, {
+      status: "approved",
+    }, {
+      new: true,
+      lean: true
+    })
+
+    if (!result) {
+      return res.status(400).json({
+        error: 'Cannot approve post: ' + req.post._id
+      })
+    }
+
+    res.status(200).json({ result })
+
+
+  } catch (err) {
+    return res.status(400).json({
+      error: errorHandler.getErrorMessage(err)
+    })
+  }
+}
 
 
 module.exports = {
@@ -316,4 +342,5 @@ module.exports = {
   remove,
   listByCommunity,
   listFeed,
+  approvePost,
 }
