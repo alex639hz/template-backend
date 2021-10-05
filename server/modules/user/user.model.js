@@ -23,7 +23,6 @@ const UserSchema = new mongoose.Schema({
     type: String,
     trim: true,
     match: [/a-zA-Z /, 'Please fill a valid email address'],
-    // required: 'Name is required'
   },
 
   role: {

@@ -1,6 +1,3 @@
-
-// const swaggerJsdoc = require('swagger-jsdoc');
-
 const { USER_TYPES } = require('../config/config')
 const { REGULAR } = require('../config/config')
 

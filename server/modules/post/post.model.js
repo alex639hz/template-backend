@@ -32,7 +32,6 @@ const PostSchema = new mongoose.Schema({
   },
 
   author: { type: mongoose.Schema.ObjectId, ref: 'User' },
-  // community: { type: mongoose.Schema.ObjectId, ref: 'Group' },
   likes: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
 
   photo: {

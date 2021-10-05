@@ -9,26 +9,21 @@ const router = express.Router()
 router.param('userId', userCtrl.userByID) //inject object into req.profile
 router.param('community', commCtrl.communityByTitle) //inject title string into req.community
 router.param('postId', postCtrl.postByID) //inject title string into req.community
+const isMember = function (req, res, next) { commCtrl.isMember(req, res, next, req.body.post.community) }
 
 router.route('')
   .get(
     authCtrl.requireSignin,
-    authCtrl.injectUserProfile,//    function (req, res, next) { userCtrl.userByID(req, res, next, req.auth._id) },
+    authCtrl.injectUserProfile,
     postCtrl.listFeed)
 
-router.route('') // TODO
+router.route('')
   .post(
     authCtrl.requireSignin,
-    authCtrl.injectUserProfile,   // function (req, res, next) { userCtrl.userByID(req, res, next, req.auth._id) },  // injecting req.profiles
-    //TODO replace temprary API middlewares 
-    function (req, res, next) { commCtrl.isMember(req, res, next, req.body.post.community) },  // injecting req.profile
+    authCtrl.injectUserProfile,
+    commCtrl.isMember,
     postCtrl.create
   )
-//TODO optional enable listByCommunity
-// .get(enable 
-//   authCtrl.requireSignin,
-//   function (req, res, next) { userCtrl.userByID(req, res, next, req.auth._id) },
-//   postCtrl.listByCommunity)
 
 router.route('/:postId/approve')
   .patch(
@@ -36,6 +31,5 @@ router.route('/:postId/approve')
     authCtrl.injectUserProfile,
     authCtrl.isModerator,
     postCtrl.approvePost)
-
 
 module.exports = router;

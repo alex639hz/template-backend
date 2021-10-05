@@ -1,6 +1,4 @@
-// const request = require('request');
 const extend = require('lodash/extend');
-// const config = require('../../config/config');
 const { User } = require('./user.model');
 const errorHandler = require('../../helpers/dbErrorHandler');
 
@@ -13,7 +11,6 @@ const create = async (req, res) => {
       message: "Successfully signed up!",
     })
   } catch (err) {
-    console.log(req.body, err)
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err)
     })
@@ -31,7 +28,6 @@ const userByID = async (req, res, next, id) => {
         error: "User not found"
       })
     req.profile = { ...user }
-    // console.log('6565-> ', user)
     next()
     return { ...req.profile }
   } catch (err) {

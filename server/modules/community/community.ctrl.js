@@ -3,22 +3,7 @@ const extend = require('lodash/extend');
 const config = require('../../config/config');
 const { Community } = require('./community.model');
 const errorHandler = require('../../helpers/dbErrorHandler');
-// const userCtrl = require('../user/user.ctrl');
 const { User } = require('../user/user.model');
-
-const create = async (req, res) => {
-  const community = new Community(req.body)
-  try {
-    await community.save()
-    return res.status(201).json({
-      message: "Successfully signed up!"
-    })
-  } catch (err) {
-    return res.status(400).json({
-      error: errorHandler.getErrorMessage(err)
-    })
-  }
-}
 
 /** inject community document into req.community
  * 
@@ -39,16 +24,16 @@ const communityByTitle = async (req, res, next, title) => {
   }
 }
 
-const isMember = async (req, res, next, title) => {
+const isMember = async (req, res, next) => {
   try {
-    const isMember = await Community.findOne(
+    const result = await Community.findOne(
       {
-        title,
+        title: req.body.post.community,
         members: req.auth._id
       }
     )
 
-    if (isMember) next()
+    if (result) next()
     else throw 1
 
   } catch (err) {
@@ -58,6 +43,21 @@ const isMember = async (req, res, next, title) => {
     })
   }
 }
+
+const create = async (req, res) => {
+  const community = new Community(req.body)
+  try {
+    await community.save()
+    return res.status(201).json({
+      message: "Successfully signed up!"
+    })
+  } catch (err) {
+    return res.status(400).json({
+      error: errorHandler.getErrorMessage(err)
+    })
+  }
+}
+
 
 const read = (req, res) => {
   req.profile.hashed_password = undefined
@@ -167,10 +167,7 @@ const approveMembership = async (req, res) => {
         lean: true
       }
     )
-    // console.log('321321', { user, community })
     res.json({ user, community })
-
-
   } catch (err) {
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err)

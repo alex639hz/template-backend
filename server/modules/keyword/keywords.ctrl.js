@@ -1,5 +1,3 @@
-const extend = require('lodash/extend');
-// const { Post } = require('./post.model');
 const { Keyword } = require('./keyword.model');
 const { Community } = require('../community/community.model');
 const errorHandler = require('../../helpers/dbErrorHandler');

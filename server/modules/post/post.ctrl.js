@@ -35,7 +35,7 @@ const create = async (req, res) => {
 
   let content = (post.body + '').split(' ')
   let keywords = []
-
+  let addedMessage = ''
   try {
     keywords = (await Keyword.find({ keyword: { $in: content } })
       .select("keyword")
@@ -45,14 +45,12 @@ const create = async (req, res) => {
     if (keywords.length) redisPub.publish(keywordAlertTopic, `${JSON.stringify(keywords)}`)
 
   } catch (err) {
-    // TODO the handler should return keywords related error as a message 
-    return res.status('400').json({
-      error: "Could not retrieve keywords"
-    })
+    addedMessage = "Could not retrieve keywords. " + JSON.stringify(err)
   }
 
   return res.status(201).json({
     message: "Post created successfully!",
+    addedMessage,
     keywords,
     post
   })
@@ -106,11 +104,6 @@ const listByCommunity = async (req, res) => {
     ]
   )
 
-  // {
-  //   localPosts: myArr['0'],
-  //     nonLocalPosts: myArr['1'],
-  // }
-
   res.json([
     ...myArr['0'].docs,
     ...myArr['1'].docs,
@@ -145,134 +138,6 @@ const listFeed = async (req, res) => {
     [...result[0].local, ...result[0].nonLocal],
   )
 
-}
-
-const listFeed_v1 = async (req, res) => {
-
-  console.log('456456', req.profile.communities)
-
-  const myArr = await Post.aggregate(
-    [
-      { $match: { community: req.community.title } },
-      // { $match: { community: { $in: req.profile.communities } } },
-      { $sort: { "score": -1 } },
-      {
-        $group: {
-          _id: { country: "$country" },
-          docs: {
-            $push: {
-              title: "$title",
-              body: "$body",
-              score: "$score",
-              country: "$country",
-              community: req.community.title
-            }
-          },
-        }
-      },
-
-    ]
-  )
-
-  res.json([
-    ...myArr['0'].docs,
-    ...myArr['1'].docs,
-  ])
-
-}
-
-
-const list_ORG = async (req, res) => {
-
-  const { community } = req;
-  let arr = []
-  const pageSize = 2;
-  const pageIndex = 0;
-  // console.log('server->', community)
-  arr = await Post.aggregate(
-    [
-      // { $sort: { country: -1, posts: 1 } }
-      { $group: { _id: "$country" } },
-
-    ]
-  )
-
-  arr = await Post.aggregate()
-
-  try {
-    arr = await Post.find(
-      { country: req.profile.country },
-      {
-        title: true,
-        summary: true,
-        body: true,
-        country: true,
-        likes: true
-      },
-      {
-        lean: true,
-      },
-    )
-      .limit(pageSize)
-      .skip(pageSize * pageSize)
-      .sort({ score: -1 })
-      .select('title summary body community likes author status')
-
-    if (!localPosts.length < pageSize) {
-      let nonLocalPosts = await Post.find(
-        { country: { $ne: req.profile.country } },
-        {
-          title: true,
-          summary: true,
-          body: true,
-          country: true,
-          likes: true
-        },
-        {
-          lean: true,
-        },
-      )
-        .limit(pageSize - localPosts.length)
-        .skip(pageSize * pageSize)
-        .sort({ score: -1 })
-        .select('title summary body community likes author status')
-
-    }
-    // else (){}
-
-    arr = [...localPosts, ...nonLocalPosts]
-
-    let nonLocalPosts = await Post.find(
-      { country: { $ne: req.profile.country } },
-      {
-        title: true,
-        summary: true,
-        body: true,
-        country: true,
-        likes: true
-      },
-      { lean: true },
-    ).select('title summary body community likes author status')
-
-    // arr = [...localPosts, ...nonLocalPosts]
-
-    // console.log(
-    //   '99987-->',
-    //   arr
-    // )
-
-    res.json({
-      community: req.community,
-      arr,
-    })
-
-
-  } catch (err) {
-    console.log(err)
-    return res.status(400).json({
-      error: errorHandler.getErrorMessage(err)
-    })
-  }
 }
 
 const update = async (req, res) => {

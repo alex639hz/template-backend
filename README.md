@@ -69,12 +69,12 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgements">Acknowledgements</a></li>
+    <!-- <li><a href="#usage">Usage</a></li> -->
+    <!-- <li><a href="#roadmap">Roadmap</a></li> -->
+    <!-- <li><a href="#contributing">Contributing</a></li> -->
+    <!-- <li><a href="#license">License</a></li> -->
+    <!-- <li><a href="#contact">Contact</a></li> -->
+    <!-- <li><a href="#acknowledgements">Acknowledgements</a></li> -->
     <li><a href="#links">Links</a></li>
   </ol>
 </details>
@@ -87,50 +87,49 @@
 <!-- add Photo and a link to app -->
 <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
 
-The project include:
-
-resources:
-* user CRUD 
-* keywords CRUD  
-* community CRUD  
-* posts CRUD  
-
-Test Features:
-* Signup and signin (using JWT).  
-* add new keywords 
-* list all keywords 
-* create new community 
-* list community 
-* block posting request for non-member's   
-* request membership to join a community 
-* approve membership request to join community (by moderator or super-moderator)
-* creat pending post in a community  
-* Alert about detected keywords in pending post using asynchronose notification service.
-* approve pending post in a community (by moderator or super-moderator)
-* list posts in a feed using special sorting:
-  * All post are related to user's community memberships 
-  * Posts from same country (user vs author country) is displayed first sorted by a numeric score system  
-  * Posts NOT from same origin country is displayed last sorted by a numeric score system
-    * score [0..100] is calculated using 80% likes + 20% post length
-
-
-Tools,libs:
-* Redis Pub/Sub ( ).  
-* Jest (unit testing)
-* Postman (e2e)
-* mongoose (MongoDB interface)
-* Swagger (documentation)
+The project consists of 2 services:
+* main application
+* Asyncronouse notification service 
+* CRUD resources:
+  * user 
+  * keywords  
+  * community  
+  * posts   
+* Features: (tested with Jest)
+  * Swagger documentation 
+  * Signup and signin (using JWT)  
+  * Add new keywords 
+  * List exsiting keywords 
+  * Create new community 
+  * List community 
+  * Block posting request for non-members 
+  * Request membership to join a community 
+  * Approve membership request to join community (by moderator or super-moderator)
+  * Creat pending post in a community  
+  * Alert about detected keywords in pending post using asynchronose notification service.
+  * Approve pending post in a community (by moderator or super-moderator)
+  * List posts in a feed using below sorting:
+    * All Posts must be from user registered communities 
+    * Posts from same country (user vs author) is displayed first sorted by a numeric score system  
+    * Posts NOT from same origin country is displayed last sorted by a numeric score system
+      * score [0..100] is calculated using 80% likes + 20% post length
 
 
 ### Built With
 
 Major frameworks used in the project. Add-ons/plugins described in acknowledgements section.
 * [Express](https://expressjs.com/) - back end web application framework for Node.js
-* [Jest](https://jest.com) - unit testing and e2e
 * [MongoDB](https://mongodb.com) - Non relation DB
 * [Redis](https://redis.io) - Asynchronose communication between services
 * [Git](https://git-scm.com/) - source contrl system
 * [Github](https://github.com) - remote repository
+
+Tools,libs:
+* Redis Pub/Sub ( ).  
+* [Jest](https://jest.com) - unit testing and e2e
+* Postman (e2e)
+* MongooseJS (MongoDB interface)
+* Swagger (documentation)
 
 
 
@@ -183,11 +182,11 @@ run in production. In root folder run:
    ```sh
    npm install
    ```
-4. testing without notification service
+4. Testing without notification service
    ```sh
    npm run test
    ```
-5. testing without notification service
+5. Testing with notification service
    ```sh
    npm run test_notification
    ```
@@ -200,18 +199,15 @@ run in production. In root folder run:
 
 
 <!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
+<!-- ## Usage -->
+<!-- Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources. -->
+<!-- _For more examples, please refer to the [Documentation](https://example.com)_ -->
 
 
 
 <!-- ROADMAP -->
-## Roadmap
-
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a list of proposed features (and known issues).
+<!-- ## Roadmap -->
+<!-- See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a list of proposed features (and known issues). -->
 
 
 
@@ -233,7 +229,7 @@ Contributions are what make the open source community such an amazing place to l
 <!-- Distributed under the MIT License. See `LICENSE` for more information. -->
 
 <!-- CONTACT -->
-## Contact
+<!-- ## Contact -->
 <!-- Alex Zvuluny - [@your_twitter](https://twitter.com/your_username) - email@example.com -->
 <!-- Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name) -->
 

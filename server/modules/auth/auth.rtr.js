@@ -1,10 +1,5 @@
 var express = require('express');
 var authCtrl = require('./auth.ctrl');
-// var url = require('url');
-// var authCtrl = express.Router();
-
-// import express from 'express'
-// import authCtrl from '../ctrl/auth.ctrl'
 
 const router = express.Router()
 

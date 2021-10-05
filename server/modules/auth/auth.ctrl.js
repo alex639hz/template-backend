@@ -4,10 +4,6 @@ const config = require('../../config/config');
 const { User } = require('../user/user.model');
 const userCtrl = require('../user/user.ctrl');
 
-// const { Community } = require('../community/community.ctrl');
-// const Acc = require('../models/account.model');
-
-
 const signin = async (req, res) => {
 
   try {
@@ -82,8 +78,6 @@ const authorizedToUpdateProfile = (req, res, next) => {
 
 const authorizedToPost = async (req, res, next) => {
   let authorized = 1
-  // const members = req.community.members
-  // const authorized = members.indexOf(req.community.title) >= 0
   commCtrl.isMember()
   if (!(authorized)) {
     return res.status('403').json({
@@ -95,10 +89,7 @@ const authorizedToPost = async (req, res, next) => {
 }
 
 const isModerator = async (req, res, next) => {
-  // console.log('787878-> ', req.profile.role)
   switch (req.profile.role) {
-    // next()
-    // break;
     case 'moderator':
     case 'super':
       next()
@@ -107,10 +98,7 @@ const isModerator = async (req, res, next) => {
       return res.status('403').json({
         error: "User is not a moderator"
       })
-
   }
-
-
 }
 
 /** inject user document into req.profile

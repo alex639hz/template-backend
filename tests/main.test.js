@@ -93,7 +93,6 @@ describe("Test the root path", () => {
   test("faile without Bearer token", async () => {
     const response = await request(app)
       .get("/api/user")
-    // .set('Authorization', 'Bearer ' + user.token)
 
     expect(response.statusCode).toBe(401);
 
@@ -277,8 +276,6 @@ describe("Test the root path", () => {
 function printIfError(response, label = '') {
   if (response.statusCode >= 400) {
     console.log(
-      // response.req.method,
-      // response.req.path,
       label,
       response.statusCode,
       response.body,
@@ -289,8 +286,16 @@ function printIfError(response, label = '') {
 function randomSuffix(prefix) {
   return '' + prefix + Math.floor(Math.random() * 10000)
 }
-//NOTE: scoreCalculator function is the example of how to calculate a score based on 
-// the post parameters and the rest of the posts 
+
+/** NOTE: scoreCalculator function is the example of 
+ * how to calculate a score based on the post parameters and the rest of the posts 
+ * 
+ * @param {*} likesCounter the post likes count
+ * @param {*} maxLikesCounter the post with highest likes count in the system
+ * @param {*} postLength the post length
+ * @param {*} maxPostLength the length of the 
+ * @returns 
+ */
 function scoreCalculator(likesCounter, maxLikesCounter, postLength, maxPostLength) {
   return (likesCounter / maxLikesCounter) * 80 + (1 - postLength / maxPostLength) * 20
 }
