@@ -11,29 +11,21 @@ router.param('community', commCtrl.communityByTitle) //inject title string into 
 router.route('')
   .post(
     authCtrl.requireSignin,
-    authCtrl.isModerator,
-    commCtrl.create) // create new community
+    commCtrl.create)
   .get(
     authCtrl.requireSignin,
-    commCtrl.list) // list communities
+    commCtrl.list)
 
 router.route('/member-request/:community')
   .patch(
     authCtrl.requireSignin,
-    commCtrl.requestMembership) // membership request to community
-
+    commCtrl.requestMembership)
 
 router.route('/member-approve/:community')
   .patch(
     authCtrl.requireSignin,
+    authCtrl.injectUserProfile,
     authCtrl.isModerator,
-    // function (req, res, next) { userCtrl.userByID(req, res, next, req.auth._id) },
-    commCtrl.approveMembership) // approve membership request to community
-
-
-// router.route('/:userId')
-//   .get(authCtrl.requireSignin, userCtrl.read)
-//   .put(authCtrl.requireSignin, authCtrl.authorizedToUpdateProfile, userCtrl.update)
-//   .delete(authCtrl.requireSignin, authCtrl.authorizedToUpdateProfile, userCtrl.remove)
+    commCtrl.approveMembership)
 
 module.exports = router;

@@ -25,18 +25,21 @@ const create = async (req, res) => {
  */
 const userByID = async (req, res, next, id) => {
   try {
-    let user = await User.findById(id)
+    let user = await User.findById(id).lean()
     if (!user)
       return res.status('400').json({
         error: "User not found"
       })
-    req.profile = user
+    req.profile = { ...user }
+    // console.log('6565-> ', user)
     next()
+    return { ...req.profile }
   } catch (err) {
     return res.status('400').json({
       error: "Could not retrieve user"
     })
   }
+
 }
 
 const read = (req, res) => {
@@ -85,8 +88,6 @@ const remove = async (req, res) => {
     })
   }
 }
-
-
 
 module.exports = {
   create,

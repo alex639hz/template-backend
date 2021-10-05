@@ -3,6 +3,8 @@ const extend = require('lodash/extend');
 const config = require('../../config/config');
 const { Community } = require('./community.model');
 const errorHandler = require('../../helpers/dbErrorHandler');
+// const userCtrl = require('../user/user.ctrl');
+const { User } = require('../user/user.model');
 
 const create = async (req, res) => {
   const community = new Community(req.body)
@@ -45,13 +47,6 @@ const isMember = async (req, res, next, title) => {
         members: req.auth._id
       }
     )
-
-    // console.log(
-    //   'server--->',
-    //   req.auth._id,
-    //   req.community,
-    //   isMember
-    // )
 
     if (isMember) next()
     else throw 1
@@ -137,11 +132,12 @@ const requestMembership = async (req, res) => {
 }
 
 const approveMembership = async (req, res) => {
+
   try {
     let community = await Community.findOneAndUpdate(
       {
         title: req.community.title,
-        members: { $ne: req.auth._id },
+        members: { $ne: req.body.pendingMember },
         pendingMembers: req.body.pendingMember
       },
       {
@@ -154,7 +150,27 @@ const approveMembership = async (req, res) => {
       },
       { new: true }
     )
-    res.json(community.pendingMembers)
+    if (!community) {
+      return res.status(400).json({
+        error: 'approveMembership() failed to find community document'
+      })
+    }
+    let user = await User.findByIdAndUpdate(
+      req.body.pendingMember,
+      {
+        $addToSet: {
+          communities: req.community.title
+        }
+      },
+      {
+        new: true,
+        lean: true
+      }
+    )
+    // console.log('321321', { user, community })
+    res.json({ user, community })
+
+
   } catch (err) {
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err)

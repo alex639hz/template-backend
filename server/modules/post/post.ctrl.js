@@ -69,9 +69,6 @@ const read = (req, res) => {
 /** list posts 
  * DONE: A section In the app where the user sees posts which are “recommended” to him. Ranked by “relevance” score - descending 
  * 
- * DONE: The Feed should only include posts which belong to one of the requesting user’s communities
- * 
- * The algorithm for this feature should rank posts where the post author is from the same country first, then based on the following weighted score - 80% “like” count + 20% post length.
  * 
  * Post A author is from the same country as the requesting user, post B isn’t. A is ranked higher then B (returned first in the array) even if B has a higher weighted score
  * Post A and B authors are from the same country as the requesting user. The post with the highest weighted score is returned first
@@ -87,35 +84,105 @@ const read = (req, res) => {
  */
 
 
-const list = async (req, res) => {
+const listByCommunity = async (req, res) => {
   const myArr = await Post.aggregate(
     [
-      // { $sort: { country: -1, posts: 1 } }
+      { $match: { community: req.community.title } },
+      { $sort: { "score": -1 } },
       {
         $group: {
-          _id: "$country",
-          titles: { $push: "$title" },
+          _id: { country: "$country" },
+          docs: {
+            $push: {
+              title: "$title",
+              body: "$body",
+              score: "$score",
+              country: "$country",
+              community: req.community.title
+            }
+          },
         }
       },
-      { $sort: { "title": -1 } },
-      // {
-      // $bucket: {
-      // groupBy: "$country",                        // Field to group by
-      // boundaries: ['IL', ''], // Boundaries for the buckets
-      // default: "Other",                             // Bucket id for documents which do not fall into a bucket
-      // output: {                                     // Output for each bucket
-      // "count": { $sum: 1 },
-      // "title": "$title",
-      // }
-      // },
+
     ]
   )
 
-  res.json({
-    ...myArr,
-  })
+  // {
+  //   localPosts: myArr['0'],
+  //     nonLocalPosts: myArr['1'],
+  // }
+
+  res.json([
+    ...myArr['0'].docs,
+    ...myArr['1'].docs,
+  ])
 
 }
+
+const listFeed = async (req, res) => {
+
+  const result = await Post.aggregate([
+    {
+      $match: {
+        community: { $in: req.profile.communities },
+        status: "approved",
+      }
+    },
+    {
+      $facet: {
+        "local": [
+          { $match: { country: req.profile.country } },
+          { $sort: { "score": -1 } },
+        ],
+        "nonLocal": [
+          { $match: { country: { $ne: req.profile.country } } },
+          { $sort: { "score": -1 } },
+        ],
+      },
+    }
+  ])
+
+  res.json(
+    [...result[0].local, ...result[0].nonLocal],
+  )
+
+}
+
+const listFeed_v1 = async (req, res) => {
+
+  console.log('456456', req.profile.communities)
+
+  const myArr = await Post.aggregate(
+    [
+      { $match: { community: req.community.title } },
+      // { $match: { community: { $in: req.profile.communities } } },
+      { $sort: { "score": -1 } },
+      {
+        $group: {
+          _id: { country: "$country" },
+          docs: {
+            $push: {
+              title: "$title",
+              body: "$body",
+              score: "$score",
+              country: "$country",
+              community: req.community.title
+            }
+          },
+        }
+      },
+
+    ]
+  )
+
+  res.json([
+    ...myArr['0'].docs,
+    ...myArr['1'].docs,
+  ])
+
+}
+
+
 const list_ORG = async (req, res) => {
 
   const { community } = req;
@@ -245,7 +312,8 @@ module.exports = {
   create,
   postByID,
   read,
-  list,
-  remove,
   update,
+  remove,
+  listByCommunity,
+  listFeed,
 }

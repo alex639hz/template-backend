@@ -2,8 +2,11 @@ const jwt = require('jsonwebtoken');
 const expressJwt = require('express-jwt');
 const config = require('../../config/config');
 const { User } = require('../user/user.model');
+const userCtrl = require('../user/user.ctrl');
+
 // const { Community } = require('../community/community.ctrl');
 // const Acc = require('../models/account.model');
+
 
 const signin = async (req, res) => {
 
@@ -92,8 +95,31 @@ const authorizedToPost = async (req, res, next) => {
 }
 
 const isModerator = async (req, res, next) => {
-  next()
+  // console.log('787878-> ', req.profile.role)
+  switch (req.profile.role) {
+    // next()
+    // break;
+    case 'moderator':
+    case 'super':
+      next()
+      break;
+    default:
+      return res.status('403').json({
+        error: "User is not a moderator"
+      })
+
+  }
+
+
 }
+
+/** inject user document into req.profile
+ * 
+ */
+const injectUserProfile = async function (req, res, next) {
+  const result = await userCtrl.userByID(req, res, next, req.auth._id)
+}
+
 
 module.exports = {
   signin,
@@ -102,5 +128,5 @@ module.exports = {
   authorizedToUpdateProfile,
   authorizedToPost,
   isModerator,
-  // userByAuth,
+  injectUserProfile,
 }

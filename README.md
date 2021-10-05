@@ -15,13 +15,12 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-[![Contributors][contributors-shield]][contributors-url]
+<!-- [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
+[![MIT License][license-shield]][license-url] -->
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 
 <!-- PROJECT LOGO -->
@@ -32,19 +31,22 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">Technical Interview</h3>
+  <h3 align="center">Technical Interview by:</h3>
+  <a href="https://www.wisdo.com/">
+     <div  align="center"> Alex Zvuluny </div>
+  </a>
 
   <p align="center">
-    For an awesome company!
+    For an awesome company:
     <br />
     <a href="https://www.wisdo.com/"><strong>www.wisdo.com »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
+    <!-- <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
     ·
     <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
+    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a> -->
   </p>
 </p>
 
@@ -85,22 +87,38 @@
 <!-- add Photo and a link to app -->
 <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
 
-This project is based on a monolithic template of a micro-service.  
+The project include:
 
+resources:
+* user CRUD 
+* keywords CRUD  
+* community CRUD  
+* posts CRUD  
 
 Features:
-* User authetication and authorisation (Express JWT)   
-* User profile managment RestAPI /MongoDB
-* Asynchronose communication example over Redis Pub/Sub.  
+* Auth (generating JWT token on signin).  
+* Post uploading (as pending)  
+* Post approve pending by moderator (or super moderator)
+* Alert about detected keywords in post body using asynchronose service.
+* list post on a feed using special sorting:
+  * by community (user must be a member in and request feed from community )   
+  * by user country (higher priority for same post origin)  
+  * by score 80% likes + 20% post length
+
+
+Tools,libs:
+* Redis Pub/Sub (Asynchronose communication between services ).  
+* Jest (unit testing)
+* Postman (e2e)
 
 
 ### Built With
 
-Major frameworks used in the project, add-ons/plugins described in acknowledgements section.
+Major frameworks used in the project. Add-ons/plugins described in acknowledgements section.
 * [Express](https://expressjs.com/)
 * [MongoDB](https://mongodb.com)
 * [Github](https://github.com)
-* [Redis](https://github.com)
+* [Redis](https://redis.io)
 
 
 
@@ -237,7 +255,7 @@ Project Link: [https://github.com/your_username/repo_name](https://github.com/yo
 [license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
 [license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
+[linkedin-url]: https://linkedin.com/in/alexzvuluny/
 [product-screenshot]: images/screenshot.png
 
 

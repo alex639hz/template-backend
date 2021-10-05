@@ -9,11 +9,11 @@ const router = express.Router()
 router.param('userId', userCtrl.userByID) //inject object into req.profile
 router.param('community', commCtrl.communityByTitle) //inject title string into req.community
 
-// router.route('/loopback')
-//   .get((req, res) => { res.json({ status: 'ok' }) })
-
-// router.route('/secured-loopback')
-//   .get(authCtrl.requireSignin, (req, res) => { res.json({ status: 'ok' }) })
+router.route('')
+  .get(
+    authCtrl.requireSignin,
+    function (req, res, next) { userCtrl.userByID(req, res, next, req.auth._id) },
+    postCtrl.listFeed)
 
 router.route('/:community')
   .post(
@@ -25,11 +25,6 @@ router.route('/:community')
   .get(
     authCtrl.requireSignin,
     function (req, res, next) { userCtrl.userByID(req, res, next, req.auth._id) },
-    postCtrl.list)
-
-// router.route('/:userId')
-//   .get(authCtrl.requireSignin, userCtrl.read)
-//   .put(authCtrl.requireSignin, authCtrl.authorizedToUpdateProfile, userCtrl.update)
-//   .delete(authCtrl.requireSignin, authCtrl.authorizedToUpdateProfile, userCtrl.remove)
+    postCtrl.listByCommunity)
 
 module.exports = router;
