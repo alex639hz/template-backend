@@ -6,10 +6,6 @@ var commCtrl = require('../community/community.ctrl');
 
 const router = express.Router()
 
-// router.param('userId', userCtrl.userByID)
-// router.param('community', commCtrl.communityByTitle)
-
-
 router.route('')
   .post(
     authCtrl.requireSignin,

@@ -9,7 +9,7 @@ const redisPub = new Redis()
 
 const postByID = async (req, res, next, id) => {
   try {
-    let post = await Post.findById(id)
+    let post = await Post.findById(id).lean()
     if (!post)
       return res.status('400').json({
         error: "Post not found"
@@ -24,8 +24,6 @@ const postByID = async (req, res, next, id) => {
 }
 
 const create = async (req, res) => {
-  // req.body.post.country = req.profile.country;
-
   const post = new Post(req.body.post)
 
   try { await post.save() }
@@ -37,7 +35,7 @@ const create = async (req, res) => {
 
   let content = (post.body + '').split(' ')
   let keywords = []
-
+  let addedMessage = ''
   try {
     keywords = (await Keyword.find({ keyword: { $in: content } })
       .select("keyword")
@@ -47,13 +45,12 @@ const create = async (req, res) => {
     if (keywords.length) redisPub.publish(keywordAlertTopic, `${JSON.stringify(keywords)}`)
 
   } catch (err) {
-    return res.status('400').json({
-      error: "Could not retrieve keywords"
-    })
+    addedMessage = "Could not retrieve keywords. " + JSON.stringify(err)
   }
 
   return res.status(201).json({
     message: "Post created successfully!",
+    addedMessage,
     keywords,
     post
   })
@@ -69,9 +66,6 @@ const read = (req, res) => {
 /** list posts 
  * DONE: A section In the app where the user sees posts which are “recommended” to him. Ranked by “relevance” score - descending 
  * 
- * DONE: The Feed should only include posts which belong to one of the requesting user’s communities
- * 
- * The algorithm for this feature should rank posts where the post author is from the same country first, then based on the following weighted score - 80% “like” count + 20% post length.
  * 
  * Post A author is from the same country as the requesting user, post B isn’t. A is ranked higher then B (returned first in the array) even if B has a higher weighted score
  * Post A and B authors are from the same country as the requesting user. The post with the highest weighted score is returned first
@@ -87,126 +81,63 @@ const read = (req, res) => {
  */
 
 
-const list = async (req, res) => {
+const listByCommunity = async (req, res) => {
   const myArr = await Post.aggregate(
     [
-      // { $sort: { country: -1, posts: 1 } }
+      { $match: { community: req.community.title } },
+      { $sort: { "score": -1 } },
       {
         $group: {
-          _id: "$country",
-          titles: { $push: "$title" },
+          _id: { country: "$country" },
+          docs: {
+            $push: {
+              title: "$title",
+              body: "$body",
+              score: "$score",
+              country: "$country",
+              community: req.community.title
+            }
+          },
         }
       },
-      { $sort: { "title": -1 } },
-      // {
-      // $bucket: {
-      // groupBy: "$country",                        // Field to group by
-      // boundaries: ['IL', ''], // Boundaries for the buckets
-      // default: "Other",                             // Bucket id for documents which do not fall into a bucket
-      // output: {                                     // Output for each bucket
-      // "count": { $sum: 1 },
-      // "title": "$title",
-      // }
-      // },
+
     ]
   )
 
-  res.json({
-    ...myArr,
-  })
+  res.json([
+    ...myArr['0'].docs,
+    ...myArr['1'].docs,
+  ])
 
 }
-const list_ORG = async (req, res) => {
 
-  const { community } = req;
-  let arr = []
-  const pageSize = 2;
-  const pageIndex = 0;
-  // console.log('server->', community)
-  arr = await Post.aggregate(
-    [
-      // { $sort: { country: -1, posts: 1 } }
-      { $group: { _id: "$country" } },
+const listFeed = async (req, res) => {
 
-    ]
+  const result = await Post.aggregate([
+    {
+      $match: {
+        community: { $in: req.profile.communities },
+        status: "approved",
+      }
+    },
+    {
+      $facet: {
+        "local": [
+          { $match: { country: req.profile.country } },
+          { $sort: { "score": -1 } },
+        ],
+        "nonLocal": [
+          { $match: { country: { $ne: req.profile.country } } },
+          { $sort: { "score": -1 } },
+        ],
+      },
+    }
+  ])
+
+  res.json(
+    [...result[0].local, ...result[0].nonLocal],
   )
 
-  arr = await Post.aggregate()
-
-  try {
-    arr = await Post.find(
-      { country: req.profile.country },
-      {
-        title: true,
-        summary: true,
-        body: true,
-        country: true,
-        likes: true
-      },
-      {
-        lean: true,
-      },
-    )
-      .limit(pageSize)
-      .skip(pageSize * pageSize)
-      .sort({ score: -1 })
-      .select('title summary body community likes author status')
-
-    if (!localPosts.length < pageSize) {
-      let nonLocalPosts = await Post.find(
-        { country: { $ne: req.profile.country } },
-        {
-          title: true,
-          summary: true,
-          body: true,
-          country: true,
-          likes: true
-        },
-        {
-          lean: true,
-        },
-      )
-        .limit(pageSize - localPosts.length)
-        .skip(pageSize * pageSize)
-        .sort({ score: -1 })
-        .select('title summary body community likes author status')
-
-    }
-    // else (){}
-
-    arr = [...localPosts, ...nonLocalPosts]
-
-    let nonLocalPosts = await Post.find(
-      { country: { $ne: req.profile.country } },
-      {
-        title: true,
-        summary: true,
-        body: true,
-        country: true,
-        likes: true
-      },
-      { lean: true },
-    ).select('title summary body community likes author status')
-
-    // arr = [...localPosts, ...nonLocalPosts]
-
-    // console.log(
-    //   '99987-->',
-    //   arr
-    // )
-
-    res.json({
-      community: req.community,
-      arr,
-    })
-
-
-  } catch (err) {
-    console.log(err)
-    return res.status(400).json({
-      error: errorHandler.getErrorMessage(err)
-    })
-  }
 }
 
 const update = async (req, res) => {
@@ -239,13 +170,42 @@ const remove = async (req, res) => {
   }
 }
 
+const approvePost = async (req, res) => {
+  try {
+    const result = await Post.findOneAndUpdate({
+      _id: req.post._id,
+      status: "pending",
+    }, {
+      status: "approved",
+    }, {
+      new: true,
+      lean: true
+    })
+
+    if (!result) {
+      return res.status(400).json({
+        error: 'Cannot approve post: ' + req.post._id
+      })
+    }
+
+    res.status(200).json({ result })
+
+
+  } catch (err) {
+    return res.status(400).json({
+      error: errorHandler.getErrorMessage(err)
+    })
+  }
+}
 
 
 module.exports = {
   create,
   postByID,
   read,
-  list,
-  remove,
   update,
+  remove,
+  listByCommunity,
+  listFeed,
+  approvePost,
 }

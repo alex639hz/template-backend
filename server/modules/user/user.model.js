@@ -23,7 +23,6 @@ const UserSchema = new mongoose.Schema({
     type: String,
     trim: true,
     match: [/a-zA-Z /, 'Please fill a valid email address'],
-    // required: 'Name is required'
   },
 
   role: {
@@ -44,6 +43,10 @@ const UserSchema = new mongoose.Schema({
       'IL',
     ],
     default: 'IL'
+  },
+
+  communities: {
+    type: [String]
   },
 
   image: {
@@ -68,7 +71,6 @@ UserSchema
 
 
 UserSchema.path('hashed_password').validate(function (v) {
-  // console.log(v)
   if (this._password && this._password.length < 6) {
     this.invalidate('password', 'Password must be at least 6 characters.')
   }

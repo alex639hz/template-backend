@@ -1,6 +1,4 @@
-// const request = require('request');
 const extend = require('lodash/extend');
-// const config = require('../../config/config');
 const { User } = require('./user.model');
 const errorHandler = require('../../helpers/dbErrorHandler');
 
@@ -13,7 +11,6 @@ const create = async (req, res) => {
       message: "Successfully signed up!",
     })
   } catch (err) {
-    console.log(req.body, err)
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err)
     })
@@ -25,18 +22,20 @@ const create = async (req, res) => {
  */
 const userByID = async (req, res, next, id) => {
   try {
-    let user = await User.findById(id)
+    let user = await User.findById(id).lean()
     if (!user)
       return res.status('400').json({
         error: "User not found"
       })
-    req.profile = user
+    req.profile = { ...user }
     next()
+    return { ...req.profile }
   } catch (err) {
     return res.status('400').json({
       error: "Could not retrieve user"
     })
   }
+
 }
 
 const read = (req, res) => {
@@ -85,8 +84,6 @@ const remove = async (req, res) => {
     })
   }
 }
-
-
 
 module.exports = {
   create,

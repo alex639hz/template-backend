@@ -1,5 +1,3 @@
-const extend = require('lodash/extend');
-// const { Post } = require('./post.model');
 const { Keyword } = require('./keyword.model');
 const { Community } = require('../community/community.model');
 const errorHandler = require('../../helpers/dbErrorHandler');
@@ -32,7 +30,7 @@ const list = async (req, res) => {
     const keywords = [...await Keyword.find({}, "keyword", { lean: true })]
       .map((elem) => elem.keyword)
 
-    return res.status(201).json({
+    return res.status(200).json({
       keywords
     })
   } catch (err) {

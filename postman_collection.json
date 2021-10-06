@@ -162,7 +162,59 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"keyword\":\"word3\"\n}",
+					"raw": "[\"word5645\",\"a\",\"b\"]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{site}}/api/keyword",
+					"host": [
+						"{{site}}"
+					],
+					"path": [
+						"api",
+						"keyword"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Keyword/list",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//pm.environment.set(\"imageId\", response._id);",
+							"//console.log(\"e:\" + response._id)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\"word5645\",\"a\",\"b\"]",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -316,7 +368,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"post\": {\n        \"title\":\"my post title-87556\",\n        \"body\":\"my post body text word1 word2 word3 \"\n    }\n}",
+					"raw": "{\n    \"post\": {\n        \"title\":\"my post title-448755\",\n        \"body\":\"my post body text word1 word2 word3 \"\n    }\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -324,13 +376,114 @@
 					}
 				},
 				"url": {
-					"raw": "{{site}}/api/post/{{communityTitle}}",
+					"raw": "{{site}}/api/post",
 					"host": [
 						"{{site}}"
 					],
 					"path": [
 						"api",
-						"post",
+						"post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Community/member-request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//pm.environment.set(\"imageId\", response._id);",
+							"//console.log(\"e:\" + response._id)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"post\": {\n        \"title\":\"my post title-448755\",\n        \"body\":\"my post body text word1 word2 word3 \"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{site}}/api/community/member-request/{{communityTitle}}",
+					"host": [
+						"{{site}}"
+					],
+					"path": [
+						"api",
+						"community",
+						"member-request",
+						"{{communityTitle}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Community/member-approve",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//pm.environment.set(\"imageId\", response._id);",
+							"//console.log(\"e:\" + response._id)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"pendingMember\":  \"{{userId}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{site}}/api/community/member-approve/{{communityTitle}}",
+					"host": [
+						"{{site}}"
+					],
+					"path": [
+						"api",
+						"community",
+						"member-approve",
 						"{{communityTitle}}"
 					]
 				}
@@ -498,289 +651,6 @@
 				}
 			},
 			"response": []
-		},
-		{
-			"name": "image/list",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"//const response = pm.response.json()",
-							"",
-							"//pm.environment.set(\"token\", response.token);",
-							"pm.environment.set(\"imageId\", response[0]._id );"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{site}}/api/image?pageIndex=0&pageSize=5&orderBy=name&orderDirection=1 ",
-					"host": [
-						"{{site}}"
-					],
-					"path": [
-						"api",
-						"image"
-					],
-					"query": [
-						{
-							"key": "pageIndex",
-							"value": "0"
-						},
-						{
-							"key": "pageSize",
-							"value": "5"
-						},
-						{
-							"key": "orderBy",
-							"value": "name"
-						},
-						{
-							"key": "orderDirection",
-							"value": "1 "
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "image/create",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"//pm.environment.set(\"imageId\", response._id);",
-							"//console.log(\"e:\" + response._id)"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"name\":\"a7\",\n    \"repository\":\"myRepo\",\n    \"version\":\"1.1.2\",\n    \"metadata\": {\n        \"a\":1,\n        \"b\":1\n        \n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{site}}/api/image",
-					"host": [
-						"{{site}}"
-					],
-					"path": [
-						"api",
-						"image"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Deployment/create",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"//pm.environment.set(\"imageId\", response._id);",
-							"//console.log(\"e:\" + response._id)"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{site}}/api/deployment/{{imageId}}",
-					"host": [
-						"{{site}}"
-					],
-					"path": [
-						"api",
-						"deployment",
-						"{{imageId}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Deployment/count",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"//pm.environment.set(\"imageId\", response._id);",
-							"//console.log(\"e:\" + response._id)"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{site}}/api/deployment/count",
-					"host": [
-						"{{site}}"
-					],
-					"path": [
-						"api",
-						"deployment",
-						"count"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Deployment/combi",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"//pm.environment.set(\"imageId\", response._id);",
-							"//console.log(\"e:\" + response._id)"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{site}}/api/deployment/combi?size=3",
-					"host": [
-						"{{site}}"
-					],
-					"path": [
-						"api",
-						"deployment",
-						"combi"
-					],
-					"query": [
-						{
-							"key": "size",
-							"value": "3"
-						}
-					]
-				}
-			},
-			"response": []
 		}
 	],
 	"auth": {
@@ -817,8 +687,7 @@
 		},
 		{
 			"key": "userId",
-			"value": "",
-			"disabled": true
+			"value": ""
 		},
 		{
 			"key": "userId",

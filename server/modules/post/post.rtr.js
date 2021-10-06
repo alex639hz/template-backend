@@ -8,28 +8,28 @@ const router = express.Router()
 
 router.param('userId', userCtrl.userByID) //inject object into req.profile
 router.param('community', commCtrl.communityByTitle) //inject title string into req.community
+router.param('postId', postCtrl.postByID) //inject title string into req.community
+const isMember = function (req, res, next) { commCtrl.isMember(req, res, next, req.body.post.community) }
 
-// router.route('/loopback')
-//   .get((req, res) => { res.json({ status: 'ok' }) })
-
-// router.route('/secured-loopback')
-//   .get(authCtrl.requireSignin, (req, res) => { res.json({ status: 'ok' }) })
-
-router.route('/:community')
-  .post(
-    authCtrl.requireSignin,
-    function (req, res, next) { userCtrl.userByID(req, res, next, req.auth._id) },  // injecting req.profile
-    function (req, res, next) { commCtrl.isMember(req, res, next, req.community.title) },  // injecting req.profile
-    //authCtrl.authorizedToPost, // validate user is a member of a community
-    postCtrl.create)
+router.route('')
   .get(
     authCtrl.requireSignin,
-    function (req, res, next) { userCtrl.userByID(req, res, next, req.auth._id) },
-    postCtrl.list)
+    authCtrl.injectUserProfile,
+    postCtrl.listFeed)
 
-// router.route('/:userId')
-//   .get(authCtrl.requireSignin, userCtrl.read)
-//   .put(authCtrl.requireSignin, authCtrl.authorizedToUpdateProfile, userCtrl.update)
-//   .delete(authCtrl.requireSignin, authCtrl.authorizedToUpdateProfile, userCtrl.remove)
+router.route('')
+  .post(
+    authCtrl.requireSignin,
+    authCtrl.injectUserProfile,
+    commCtrl.isMember,
+    postCtrl.create
+  )
+
+router.route('/:postId/approve')
+  .patch(
+    authCtrl.requireSignin,
+    authCtrl.injectUserProfile,
+    authCtrl.isModerator,
+    postCtrl.approvePost)
 
 module.exports = router;

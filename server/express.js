@@ -7,9 +7,7 @@ const logger = require('morgan');
 const compress = require('compression');
 const cors = require('cors');
 const helmet = require('helmet');
-// const bodyParser = require('body-parser');
 
-// const indexRouter = require('./routes/index.rtr');
 const authRouter = require('./modules/auth/auth.rtr');
 const userRouter = require('./modules/user/user.rtr');
 const postRouter = require('./modules/post/post.rtr');
@@ -17,10 +15,6 @@ const communityRouter = require('./modules/community/community.rtr');
 const wordRouter = require('./modules/keyword/keywords.rtr');
 
 const swaggerUi = require("swagger-ui-express");
-// const swaggerOptions = require('./docs');
-const swaggerJsdoc = require('swagger-jsdoc');
-
-// const swaggerOptions = ;
 
 const CURRENT_WORKING_DIR = process.cwd()
 
@@ -45,7 +39,7 @@ app.use('*', (req, res) => {
   res.status(400).send({ error: 'incorrect URL - returned by catch-all handler' })
 })
 
-// Catch unauthorised errors
+// Catch errors
 app.use((err, req, res, next) => {
   if (err.name === 'UnauthorizedError') {
     res.status(401).json({ "error": err.name + ": " + err.message })
@@ -54,6 +48,5 @@ app.use((err, req, res, next) => {
     console.log(err)
   }
 })
-
 
 module.exports = app;

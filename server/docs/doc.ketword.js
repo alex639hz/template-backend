@@ -1,20 +1,21 @@
+
+const swaggerJsdoc = require('swagger-jsdoc');
+
 const { USER_TYPES } = require('../config/config')
 const { REGULAR } = require('../config/config')
 
-
-
 const options = {
-  'api/auth': {
+  '/api/user': {
     post: {
-      tags: ['auth CRUD'],
-      description: 'User signin',
-      operationId: 'signin',
+      tags: ['user CRUD'],
+      description: 'Create users',
+      operationId: 'createUsers',
       parameters: [],
       requestBody: {
         content: {
           'application/json': {
             schema: {
-              $ref: '#/components/schemas/Auth'
+              $ref: '#/components/schemas/Users'
             }
           }
         },
@@ -41,11 +42,11 @@ const options = {
       }
     }
   },
-  '/auth/{id}': {
+  '/user/{id}': {
     get: {
-      tags: ["auth CRUD"], // operation's tag.
-      description: "user signout", // operation's desc.
-      operationId: "signout", // unique operation id
+      tags: ["user CRUD"], // operation's tag.
+      description: "read user profile", // operation's desc.
+      operationId: "userRead", // unique operation id
       parameters: [
         // expected params.
         {
@@ -55,7 +56,7 @@ const options = {
             $ref: "#/components/schemas/id", // data model of the param
           },
           required: true, // Mandatory param
-          description: "A single todo id", // param desc.
+          description: "user ID", // param desc.
         },
       ],
       // expected responses
@@ -86,7 +87,47 @@ const options = {
         },
       },
     },
-  },
+    put: {
+      tags: ["user CRUD"],
+      description: "update user account",
+      operationId: "getTodo",
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          schema: {
+            $ref: "#/components/schemas/id",
+          },
+          required: true,
+          description: "user ID",
+        },
+      ],
+      responses: {
+        200: {
+          description: "Todo is obtained", // response desc.
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Todo", // todo data model
+              },
+            },
+          },
+        },
+        404: {
+          description: "Todo is not found", // response desc.
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Error", // error data model
+              },
+            },
+          },
+        },
+      },
+    },
+  }
+
 }
+
 module.exports = options;
 // module.exports = openapiSpecification;

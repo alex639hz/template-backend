@@ -3,20 +3,7 @@ const extend = require('lodash/extend');
 const config = require('../../config/config');
 const { Community } = require('./community.model');
 const errorHandler = require('../../helpers/dbErrorHandler');
-
-const create = async (req, res) => {
-  const community = new Community(req.body)
-  try {
-    await community.save()
-    return res.status(201).json({
-      message: "Successfully signed up!"
-    })
-  } catch (err) {
-    return res.status(400).json({
-      error: errorHandler.getErrorMessage(err)
-    })
-  }
-}
+const { User } = require('../user/user.model');
 
 /** inject community document into req.community
  * 
@@ -37,23 +24,16 @@ const communityByTitle = async (req, res, next, title) => {
   }
 }
 
-const isMember = async (req, res, next, title) => {
+const isMember = async (req, res, next) => {
   try {
-    const isMember = await Community.findOne(
+    const result = await Community.findOne(
       {
-        title,
+        title: req.body.post.community,
         members: req.auth._id
       }
     )
 
-    // console.log(
-    //   'server--->',
-    //   req.auth._id,
-    //   req.community,
-    //   isMember
-    // )
-
-    if (isMember) next()
+    if (result) next()
     else throw 1
 
   } catch (err) {
@@ -63,6 +43,21 @@ const isMember = async (req, res, next, title) => {
     })
   }
 }
+
+const create = async (req, res) => {
+  const community = new Community(req.body)
+  try {
+    await community.save()
+    return res.status(201).json({
+      message: "Community created successfully"
+    })
+  } catch (err) {
+    return res.status(400).json({
+      error: errorHandler.getErrorMessage(err)
+    })
+  }
+}
+
 
 const read = (req, res) => {
   req.profile.hashed_password = undefined
@@ -117,7 +112,6 @@ const requestMembership = async (req, res) => {
       {
         title: req.community.title,
         members: { $ne: req.auth._id },
-        pendingMembers: { $ne: req.auth._id },
       },
       {
         $addToSet: {
@@ -127,7 +121,10 @@ const requestMembership = async (req, res) => {
       { new: true }
     )
 
-    res.json(community.pendingMembers)
+    res.json({
+      status: "OK",
+      message: "Waiting for approval"
+    })
   } catch (err) {
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err),
@@ -137,12 +134,13 @@ const requestMembership = async (req, res) => {
 }
 
 const approveMembership = async (req, res) => {
+
   try {
     let community = await Community.findOneAndUpdate(
       {
         title: req.community.title,
-        members: { $ne: req.auth._id },
-        pendingMembers: req.body.pendingMember
+        // members: { $ne: req.body.pendingMember },
+        // pendingMembers: req.body.pendingMember
       },
       {
         $addToSet: {
@@ -152,9 +150,33 @@ const approveMembership = async (req, res) => {
           pendingMembers: req.body.pendingMember
         }
       },
-      { new: true }
+      {
+        new: true,
+        lean: true,
+      }
     )
-    res.json(community.pendingMembers)
+    if (!community) {
+      return res.status(400).json({
+        error: 'failed to find and update community'
+      })
+    }
+
+    let user = await User.findByIdAndUpdate(
+      req.body.pendingMember,
+      {
+        $addToSet: {
+          communities: req.community.title
+        }
+      },
+      {
+        new: true,
+        lean: true
+      }
+    )
+    res.json({
+      status: "OK",
+      message: `Membership approved at ${community.title}`
+    })
   } catch (err) {
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err)
