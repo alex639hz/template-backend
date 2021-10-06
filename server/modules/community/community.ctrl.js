@@ -49,7 +49,7 @@ const create = async (req, res) => {
   try {
     await community.save()
     return res.status(201).json({
-      message: "Successfully signed up!"
+      message: "Community created successfully"
     })
   } catch (err) {
     return res.status(400).json({
@@ -112,7 +112,6 @@ const requestMembership = async (req, res) => {
       {
         title: req.community.title,
         members: { $ne: req.auth._id },
-        pendingMembers: { $ne: req.auth._id },
       },
       {
         $addToSet: {
@@ -122,7 +121,10 @@ const requestMembership = async (req, res) => {
       { new: true }
     )
 
-    res.json(community.pendingMembers)
+    res.json({
+      status: "OK",
+      message: "Waiting for approval"
+    })
   } catch (err) {
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err),
@@ -137,8 +139,8 @@ const approveMembership = async (req, res) => {
     let community = await Community.findOneAndUpdate(
       {
         title: req.community.title,
-        members: { $ne: req.body.pendingMember },
-        pendingMembers: req.body.pendingMember
+        // members: { $ne: req.body.pendingMember },
+        // pendingMembers: req.body.pendingMember
       },
       {
         $addToSet: {
@@ -148,13 +150,17 @@ const approveMembership = async (req, res) => {
           pendingMembers: req.body.pendingMember
         }
       },
-      { new: true }
+      {
+        new: true,
+        lean: true,
+      }
     )
     if (!community) {
       return res.status(400).json({
-        error: 'approveMembership() failed to find community document'
+        error: 'failed to find and update community'
       })
     }
+
     let user = await User.findByIdAndUpdate(
       req.body.pendingMember,
       {
@@ -167,7 +173,10 @@ const approveMembership = async (req, res) => {
         lean: true
       }
     )
-    res.json({ user, community })
+    res.json({
+      status: "OK",
+      message: `Membership approved at ${community.title}`
+    })
   } catch (err) {
     return res.status(400).json({
       error: errorHandler.getErrorMessage(err)

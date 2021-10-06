@@ -7,14 +7,15 @@
     "url": "https://github.com/alex639hz/wisdo.git"
   },
   "scripts": {
-    "alert-service": "node ./server/utils/alert",
-    "redis": "redis-server",
-    "dev": "clear && concurrently --kill-others \"npm run redis\" \"npm run alert-service\" \"npm run server\"",
-    "server": "node ./node_modules/nodemon/bin/nodemon.js ",
-    "start": "set NODE_ENV=production &&  node ./server/write &&  node ./bin/www",
-    "close-port": "kill $(lsof -t -i:6379)",
+    "service:alert": "node ./server/utils/alert",
+    "service:app": "node ./server/bin/www",
+    "dev": "clear && concurrently --kill-others \"npm run service:alert\" \"npm run nodemon\"",
+    "nodemon": "node ./node_modules/nodemon/bin/nodemon.js ",
+    "start": "clear && concurrently --kill-others \"npm run service:alert\" \"npm run service:app\"",
     "test": "clear && ./node_modules/jest/bin/jest.js ./tests/main.test.js --forceExit  --detectOpenHandles",
-    "test_notification": "clear && concurrently --kill-others \"npm run redis\" \"npm run alert-service\" \"npm run test\""
+    "test:notification": "clear && concurrently --kill-others \"npm run alert-service\" \"npm run test\"",
+    "close_port": "kill $(lsof -t -i:6379)",
+    "redis": "redis-server"
   },
   "dependencies": {
     "compress": "^0.99.0",

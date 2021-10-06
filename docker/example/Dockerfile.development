@@ -1,0 +1,19 @@
+FROM node:latest
+
+RUN mkdir -p /wisdo/node_modules && chown -R node:node /wisdo
+WORKDIR /wisdo
+
+COPY package*.json /wisdo
+
+USER node
+
+RUN npm install
+
+ADD https://github.com/alex639hz/wisdo.git .
+# COPY --chown=node:node .. .
+
+RUN chmod +x .
+
+EXPOSE 3000
+
+CMD npm run dev

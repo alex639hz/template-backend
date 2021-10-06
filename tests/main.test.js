@@ -186,18 +186,6 @@ describe("Test the root path", () => {
     expect(response.statusCode).toBe(200);
   });
 
-  //TODO make sure 2nd request gets "waiting for approval" message and status 200
-  test("deny 2nd request community membership", async () => {
-    const url = `/api/community/member-request/${communityTitle}`;
-
-    const response = await request(app)
-      .patch(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send()
-
-    expect(response.statusCode).toBe(400);
-  });
-
   test("approve community A membership", async () => {
     const url = `/api/community/member-approve/${communityTitle}`;
 
@@ -208,18 +196,6 @@ describe("Test the root path", () => {
 
     printIfError(response)
     expect(response.statusCode).toBe(200);
-  });
-
-  //TODO make sure 2nd request gets "alreadt approved" message and status 200
-  test("deny 2nd approve community membership ", async () => {
-    const url = `/api/community/member-approve/${communityTitle}`;
-
-    const response = await request(app)
-      .patch(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({ pendingMember: user._id })
-
-    expect(response.statusCode).toBe(400);
   });
 
   //generate posts collection
