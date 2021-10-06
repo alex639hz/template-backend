@@ -90,12 +90,14 @@
 The project consists of 2 services:
 * main application
 * Asyncronouse notification service 
-* CRUD resources:
+
+CRUD resources:
   * user 
   * keywords  
   * community  
-  * posts   
-* Features: (tested with Jest)
+  * posts  
+
+Features: (tested with Jest)
   * Swagger documentation 
   * Signup and signin (using JWT)  
   * Add new keywords 
@@ -148,7 +150,7 @@ run automated test. In root folder run:
 
 run automated test. In root folder run: 
   ```sh
-  npm run test_notification
+  npm run test:notification
   ```
 
 run in production. In root folder run: 
