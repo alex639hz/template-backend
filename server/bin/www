@@ -18,16 +18,17 @@ const debug = require('debug')('restful-service:server');
 mongoose.Promise = global.Promise
 mongoose.connect(config.mongoUris[0],
   {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false
-  })
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
+  }
+).catch(err => {
+  consol.err(err)
+})
 
 console.log('mongoDB: ', config.mongoUris[0])
 
-mongoose.connection.on('error', () => {
-  throw new Error(`unable to connect to database: ${config.mongoUri}`)
+mongoose.connection.on('error', (err) => {
+  throw new Error(`unable to connect to database: ${err}`)
 })
 
 /**
@@ -88,4 +89,4 @@ function onListening() {
   console.log('Swagger on ' + `http://localhost:${addr.port}/api-docs`)
 }
 
-config.mongooseInit(mongoose, config.mongoUri)
+config.mongooseInit(mongoose, config.mongoUris[0])

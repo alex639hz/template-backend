@@ -1,7 +1,7 @@
 version: '3'
 services:
-  wisdo:
-    container_name: wisdo-main
+  myApp:
+    container_name: myApp-main
     restart: always
     build: .
     ports:
@@ -10,8 +10,8 @@ services:
       - redis
       - mongo
   mongo:
-    container_name: wisdo-mongo
+    container_name: myApp-mongo
     image: 'mongo:4'
   redis:
-    container_name: wisdo-redis
+    container_name: myApp-redis
     image: 'redis:4.0.11'

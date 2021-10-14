@@ -48,16 +48,16 @@ describe("Test the root path", () => {
     mongoose.Promise = global.Promise
     mongoose.connect(config.mongoUris[0],
       {
-        useNewUrlParser: true,
-        useCreateIndex: true,
-        useUnifiedTopology: true,
-        useFindAndModify: false
+        // useNewUrlParser: true,
+        // useCreateIndex: true,
+        // useUnifiedTopology: true,
+        // useFindAndModify: false
       })
 
     mongoose.connection.on('error', () => {
-      throw new Error(`unable to connect to database: ${config.mongoUri}`)
+      throw new Error(`unable to connect to database: ${config.mongoUris[0]}`)
     })
-    config.mongooseInit(mongoose, config.mongoUri)
+    config.mongooseInit(mongoose, config.mongoUris[0])
 
     await User.deleteMany();
     await Keyword.deleteMany();

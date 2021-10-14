@@ -27,19 +27,19 @@
 <br />
 <p align="center">
   <!-- <a href="https://github.com/othneildrew/Best-README-Template"> -->
-  <a href="https://www.wisdo.com/">
+  <a href="https://www.myApp.com/">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">Technical Interview by:</h3>
-  <a href="https://www.wisdo.com/">
+  <a href="https://www.myApp.com/">
      <div  align="center"> Alex Zvuluny </div>
   </a>
 
   <p align="center">
     For an awesome company:
     <br />
-    <a href="https://www.wisdo.com/"><strong>www.wisdo.com »</strong></a>
+    <a href="https://www.myApp.com/"><strong>www.myApp.com »</strong></a>
     <br />
     <br />
     <!-- <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
@@ -173,11 +173,11 @@ run in production. In root folder run:
 
 1. Clone the repo <>
    ```sh
-   git clone https://github.com/alex639hz/wisdo.git
+   git clone https://github.com/alex639hz/myApp.git
    ```
    change directory to root folder 
    ```sh
-   cd wisdo
+   cd myApp
    ```
 
 3. Install NPM packages
