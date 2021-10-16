@@ -90,30 +90,36 @@ const createTx = async (req, res) => {
 
   // collect error source and generate response message
   if (!accountSender) {
+    if (0) {
+      accountSender = await Account.findOne(
+        {
+          owner: sender,
+        },
+        {
+          balance: true,
+          txs: true,
+        },
+        {
+          lean: true,
+        }
+      )
 
-    accountSender = await Account.findOne(
-      {
-        owner: sender,
-      },
-      {
-        balance: true,
-        txs: true,
-      },
-      {
-        lean: true,
-      }
-    )
+      const message = !accountSender ?
+        "sender account not fount" : accountSender.balance < amount ?
+          "Balance Failure" : accountSender.txs.includes(raw) ?
+            "tx already exist" : 'unknown tx failure';
 
-    const message = !accountSender ?
-      "sender account not fount" : accountSender.balance < amount ?
-        "Balance Failure" : accountSender.txs.includes(raw) ?
-          "tx already exist" : 'unknown tx failure';
-
-    return res.status(400).json({
-      message,
-      accountSender,
-    })
+      return res.status(400).json({
+        message,
+        accountSender,
+      })
+    } else {
+      return res.status(400).json({
+        message: "sender account not found`",
+      })
+    }
   }
+
   //  update receiver account
   const accountReceiver = await Account.findOneAndUpdate(
     { owner: receiver },

@@ -256,6 +256,8 @@ Contributions are what make the open source community such an amazing place to l
 * [Adding Typescript to Nodejs/Express](https://blog.logrocket.com/typescript-with-node-js-and-express/)
 * [Adding Docker to Nodejs/Express](https://www.digitalocean.com/community/tutorials/how-to-build-a-node-js-application-with-docker-on-ubuntu-20-04)
 * [Adding Docker to Nodejs/Express](https://avishwakarma.medium.com/getting-started-with-docker-for-nodejs-mongodb-and-redis-b97188d33559)
+* [Mongodb for banking system](https://www.mongodb.com/blog/post/next-generation-mobile-bank-current-using-mongodb-atlas-google-cloud-make-financial-services-accessible-affordable-all)
+* [Mongodb in financial systems](https://www.slideshare.net/mongodb/how-financial-services-organizations-use-mongodb)
 
 
 
