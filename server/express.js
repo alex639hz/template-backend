@@ -13,6 +13,7 @@ const userRouter = require('./modules/user/user.rtr');
 const postRouter = require('./modules/post/post.rtr');
 const communityRouter = require('./modules/community/community.rtr');
 const wordRouter = require('./modules/keyword/keywords.rtr');
+const accountRouter = require('./modules/tx/account.rtr');
 
 const swaggerUi = require("swagger-ui-express");
 
@@ -31,6 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/post', postRouter);
+app.use('/api/account', accountRouter);
 app.use('/api/community', communityRouter);
 app.use('/api/keyword', wordRouter);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(require('./docs')));

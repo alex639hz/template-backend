@@ -22,7 +22,8 @@ const config = {
   mongoDropDb: async () => { await mongoose.connection.db.dropDatabase() },
 
   topicsNames: {
-    keywordAlertTopic: 'keyword-alert'
+    keywordAlertTopic: 'keyword-alert',
+    serviceGetStatusOfFailedTx: 'tx-failure',
   }
 }
 

@@ -9,7 +9,7 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Wisdo',
+      title: 'myApp',
       description: 'OK',
       version: '1.0.0'
     },
