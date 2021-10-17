@@ -12,7 +12,8 @@ const AccountSchema = new mongoose.Schema({
   },
   senderId: "",
   balance: 0,
-  txs: [],
+  inTxs: [],
+  outTxs: [],
 
 }, {
   timestamps: true,
