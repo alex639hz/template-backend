@@ -95,7 +95,7 @@ describe("Test the root path", () => {
     expect(response.statusCode).toBe(201);
   });
 
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 10; i++) {
     test("create tx", async () => {
       const url = "/api/account/tx";
       const response = await request(app)
@@ -125,8 +125,8 @@ describe("Test the root path", () => {
         tx: {
           sender: "1010",
           receiver: "1020",
-          amount: 5,
-          title: "initial",
+          amount: 1,
+          title: "initial0",
         }
       })
 
