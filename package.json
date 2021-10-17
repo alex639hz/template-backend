@@ -7,7 +7,8 @@
     "url": "https://github.com/alex639hz/template-backend.git"
   },
   "scripts": {
-    "service:alert": "node ./server/utils/alert",
+    "service:alert": "node ./server/utils/service.alert",
+    "service:tx_alert": "node ./server/utils/service.tx_alert",
     "service:app": "node ./server/bin/www",
     "dev": "clear && concurrently --kill-others \"npm run nodemon\"",
     "dev:notification": "clear && concurrently --kill-others \"npm run service:alert\" \"npm run nodemon\"",
@@ -15,13 +16,16 @@
     "start": "clear && concurrently --kill-others \"npm run service:alert\" \"npm run service:app\"",
     "test": "clear && ./node_modules/jest/bin/jest.js ./tests/main.test.js --forceExit  --detectOpenHandles",
     "test:account": "clear && ./node_modules/jest/bin/jest.js ./tests/account.test.js --forceExit  --detectOpenHandles",
+    "test:account:alert": "clear &&   ./node_modules/jest/bin/jest.js ./tests/account.test.js --forceExit  --detectOpenHandles",
     "test:notification": "clear && concurrently --kill-others \"npm run alert-service\" \"npm run test\"",
+    "test:account:notification": "clear && concurrently --kill-others \"npm run service:tx_alert\" \"npm run test:account\"",
     "close_port": "kill $(lsof -t -i:6379)",
     "redis": "redis-server"
   },
   "dependencies": {
     "@types/mongodb": "^4.0.7",
     "@types/mongoose": "^5.11.97",
+    "axios": "^0.23.0",
     "compress": "^0.99.0",
     "compression": "^1.7.4",
     "concurrently": "^6.2.1",

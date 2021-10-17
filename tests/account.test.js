@@ -5,7 +5,6 @@ const { User } = require('../server/modules/user/user.model');
 const { Keyword } = require('../server/modules/keyword/keyword.model');
 const { Community } = require('../server/modules/community/community.model');
 const { Post } = require('../server/modules/post/post.model');
-const { Tx } = require('../server/modules/tx/tx.model');
 const { Account } = require('../server/modules/tx/account.model');
 const mongoose = require('mongoose');
 
@@ -31,6 +30,7 @@ let keywords = [
   'word1',
   'word2',
 ]
+
 let postsA = [
   generatePost("A", "US", 100, "word? word1 word2 word3"),
   generatePost("A", "IL", 90, "word? word? word? word?"),
@@ -95,43 +95,26 @@ describe("Test the root path", () => {
     expect(response.statusCode).toBe(201);
   });
 
-  test("create tx", async () => {
-    const url = "/api/account/tx";
-    const response = await request(app)
-      .post(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({
-        tx: {
-          sender: "1010",
-          receiver: "1020",
-          amount: 10,
-          title: "initial",
-        }
-      })
+  for (let i = 0; i < 100; i++) {
+    test("create tx", async () => {
+      const url = "/api/account/tx";
+      const response = await request(app)
+        .post(url)
+        .set('Authorization', 'Bearer ' + user.token)
+        .send({
+          tx: {
+            sender: "1010",
+            receiver: "1020",
+            amount: 1,
+            title: "initial" + i,
+          }
+        })
 
-    // console.log('pppp', response.body)
-    printIfError(response)
-    expect(response.statusCode).toBe(201);
-  });
-
-  test("create tx", async () => {
-    const url = "/api/account/tx";
-    const response = await request(app)
-      .post(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({
-        tx: {
-          sender: "1010",
-          receiver: "1020",
-          amount: 5,
-          title: "initial",
-        }
-      })
-
-    // console.log('pppp', response.body)
-    printIfError(response)
-    expect(response.statusCode).toBe(201);
-  });
+      // console.log('pppp', response.body)
+      printIfError(response)
+      expect(response.statusCode).toBe(201);
+    });
+  }
 
   test("should not accept duplicated tx", async () => {
     const url = "/api/account/tx";

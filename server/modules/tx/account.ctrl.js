@@ -3,9 +3,9 @@ const { Account } = require('./account.model');
 // const utils = require('./account.util');
 const { Keyword } = require('../keyword/keyword.model');
 const errorHandler = require('../../helpers/dbErrorHandler');
-// const Redis = require('ioredis');
-// const { keywordAlertTopic } = require('../../config/config').topicsNames
+const { serviceGetStatusOfFailedTx } = require('../../config/config').topicsNames
 
+// const Redis = require('ioredis');
 // const redisPub = new Redis()
 
 const accountByID = async (req, res, next, id) => {
@@ -24,7 +24,7 @@ const accountByID = async (req, res, next, id) => {
   }
 }
 
-const createinital = async (req, res) => {
+const createInitial = async (req, res) => {
   const account = new Account(req.body.account)
 
   try { await account.save() }
@@ -34,25 +34,8 @@ const createinital = async (req, res) => {
     })
   }
 
-  // let content = (account.body + '').split(' ')
-  // let keywords = []
-  // let addedMessage = ''
-  // try {
-  //   keywords = (await Keyword.find({ keyword: { $in: content } })
-  //     .select("keyword")
-  //     .lean()
-  //   ).map(elem => elem.keyword)
-
-  //   if (keywords.length) redisPub.publish(keywordAlertTopic, `${JSON.stringify(keywords)}`)
-
-  // } catch (err) {
-  //   addedMessage = "Could not retrieve keywords. " + JSON.stringify(err)
-  // }
-
   return res.status(201).json({
     message: "Account created successfully!",
-    // addedMessage,
-    // keywords,
     account
   })
 
@@ -62,19 +45,21 @@ const createTx = async (req, res) => {
   const sender = req.body.tx.sender || ''
   const receiver = req.body.tx.receiver || ''
   const amount = req.body.tx.amount || 0
-  const raw = `${sender},${receiver},${amount}`
+  const title = req.body.tx.title || ''
+  const raw = `${sender},${receiver},${amount},${title}`
   let accountSender;
 
-  try {   // try to update sender account
+  // try to update sender account
+  try {
     accountSender = await Account.findOneAndUpdate(
       {
         owner: sender,
         balance: { $gte: amount },
-        txs: { $ne: raw }
+        outTxs: { $ne: raw }
       },
       {
         $inc: { balance: -amount },
-        $addToSet: { txs: raw }
+        $addToSet: { outTxs: raw }
       },
       {
         new: true,
@@ -88,9 +73,11 @@ const createTx = async (req, res) => {
     })
   }
 
-  // collect error source and generate response message
+  // get failed tx error and generate response message
   if (!accountSender) {
     if (0) {
+      redisPub.publish(serviceGetStatusOfFailedTx, `${JSON.stringify("any data...")}`);
+
       accountSender = await Account.findOne(
         {
           owner: sender,
@@ -125,7 +112,7 @@ const createTx = async (req, res) => {
     { owner: receiver },
     {
       $inc: { balance: +amount },
-      $addToSet: { txs: raw },
+      $addToSet: { inTxs: raw },
     },
     {
       new: true,
@@ -158,40 +145,6 @@ const create = async (req, res) => {
     message: "Account created successfully!",
     account
   })
-}
-
-const create_example = async (req, res) => {
-  const account = new Account(req.body.account)
-
-  try { await account.save() }
-  catch (err) {
-    return res.status(400).json({
-      error: errorHandler.getErrorMessage(err)
-    })
-  }
-
-  let content = (account.body + '').split(' ')
-  let keywords = []
-  // let addedMessage = ''
-  try {
-    keywords = (await Keyword.find({ keyword: { $in: content } })
-      .select("keyword")
-      .lean()
-    ).map(elem => elem.keyword)
-
-    if (keywords.length) redisPub.publish(keywordAlertTopic, `${JSON.stringify(keywords)}`)
-
-  } catch (err) {
-    // addedMessage = "Could not retrieve keywords. " + JSON.stringify(err)
-  }
-
-  return res.status(201).json({
-    message: "Account created successfully!",
-    // addedMessage,
-    // keywords,
-    account
-  })
-
 }
 
 const read = async (req, res) => {
@@ -411,7 +364,7 @@ const getBalance = async (req, res) => {
 module.exports = {
   create,
   createTx,
-  createinital,
+  createInitial,
   accountByID,
   read,
   update,
