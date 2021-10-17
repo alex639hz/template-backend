@@ -20,7 +20,8 @@
     "test:notification": "clear && concurrently --kill-others \"npm run alert-service\" \"npm run test\"",
     "test:account:notification": "clear && concurrently --kill-others \"npm run service:tx_alert\" \"npm run test:account\"",
     "close_port": "kill $(lsof -t -i:6379)",
-    "redis": "redis-server"
+    "redis": "redis-server",
+    "git:set_remote": "git remote set-url origin https://alex639hz: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@github.com/alex639hz/template-backend"
   },
   "dependencies": {
     "@types/mongodb": "^4.0.7",
