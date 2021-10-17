@@ -5,7 +5,6 @@ const { User } = require('../server/modules/user/user.model');
 const { Keyword } = require('../server/modules/keyword/keyword.model');
 const { Community } = require('../server/modules/community/community.model');
 const { Post } = require('../server/modules/post/post.model');
-const { Tx } = require('../server/modules/tx/tx.model');
 const { Account } = require('../server/modules/tx/account.model');
 const mongoose = require('mongoose');
 
@@ -66,7 +65,6 @@ describe("Test the root path", () => {
     await Keyword.deleteMany();
     await Community.deleteMany();
     await Post.deleteMany();
-    await Tx.deleteMany();
     await Account.deleteMany();
 
   });
@@ -247,152 +245,6 @@ describe("Test the root path", () => {
     // console.log(response.body)
 
     expect(response.statusCode).toBe(200);
-  });
-
-  test("create initial tx", async () => {
-    const url = "/api/tx/initial";
-    const response = await request(app)
-      .post(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({
-        tx: {
-          sender: "0",
-          receiver: "1001",
-          amount: 10 ** 6,
-          title: "initial",
-        }
-      })
-
-    printIfError(response)
-    expect(response.statusCode).toBe(201);
-  });
-
-  test("create tx", async () => {
-    const url = "/api/tx";
-    const response = await request(app)
-      .post(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({
-        tx: {
-          sender: "1001",
-          receiver: "1002",
-          amount: 5,
-          title: "first tx",
-        }
-      })
-
-
-    // console.log(response.body)
-    printIfError(response)
-    expect(response.statusCode).toBe(201);
-  });
-
-  test("get balance", async () => {
-    const url = "/api/tx";
-    const response = await request(app)
-      .get(url)
-      .set('Authorization', 'Bearer ' + user.token)
-
-    console.log(JSON.stringify(response.body))
-
-    printIfError(response)
-    expect(response.statusCode).toBe(200);
-  });
-
-  test("create account A", async () => {
-    const url = "/api/account";
-    const response = await request(app)
-      .post(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({
-        account: {
-          owner: "1010",
-          balance: 100,
-          title: "initial",
-        }
-      })
-
-    // console.log(response.body)
-    printIfError(response)
-    expect(response.statusCode).toBe(201);
-  });
-
-  test("create tx", async () => {
-    const url = "/api/account/tx";
-    const response = await request(app)
-      .post(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({
-        tx: {
-          sender: "1010",
-          receiver: "1020",
-          amount: 10,
-          title: "initial",
-        }
-      })
-
-    // console.log('pppp', response.body)
-    printIfError(response)
-    expect(response.statusCode).toBe(201);
-  });
-
-  test("create tx", async () => {
-    const url = "/api/account/tx";
-    const response = await request(app)
-      .post(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({
-        tx: {
-          sender: "1010",
-          receiver: "1020",
-          amount: 5,
-          title: "initial",
-        }
-      })
-
-    // console.log('pppp', response.body)
-    printIfError(response)
-    expect(response.statusCode).toBe(201);
-  });
-
-  test("should not accept duplicated tx", async () => {
-    const url = "/api/account/tx";
-    const response = await request(app)
-      .post(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({
-        tx: {
-          sender: "1010",
-          receiver: "1020",
-          amount: 5,
-          title: "initial",
-        }
-      })
-
-    // console.log('should not accept duplicated tx', response.body)
-    // printIfError(response)
-    expect(response.statusCode).toBe(400);
-    expect(response.body.message).toBe('tx already exist');
-  });
-
-  test("should not accept out of balance tx", async () => {
-    const url = "/api/account/tx";
-    const response = await request(app)
-      .post(url)
-      .set('Authorization', 'Bearer ' + user.token)
-      .send({
-        tx: {
-          sender: "1010",
-          receiver: "1020",
-          amount: 500,
-          title: "initial",
-        }
-      })
-
-    // console.log('aaaaa', response.body)
-    // printIfError(response)
-    expect(response.statusCode).toBe(400);
-    // expect(response.body.message).toBe('Failed to updated sender account!');
   });
 
 });

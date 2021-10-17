@@ -31,9 +31,9 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">Technical Interview by:</h3>
+  <h3 align="center">Backend Template:</h3>
   <a href="https://www.myApp.com/">
-     <div  align="center"> Alex Zvuluny </div>
+     <div  align="center">  Example</div>
   </a>
 
   <p align="center">
