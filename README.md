@@ -37,7 +37,7 @@
   </a>
 
   <p align="center">
-    For an awesome company:
+    For an awesome company :
     <br />
     <a href="https://www.myApp.com/"><strong>www.myApp.com »</strong></a>
     <br />
