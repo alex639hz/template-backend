@@ -1,18 +1,35 @@
 var express = require('express');
-var userCtrl = require('./user.ctrl');
+// var surveyCtrl = require('./user.ctrl');
+var surveyCtrl = require('./survey.ctrl');
 var authCtrl = require('../auth/auth.ctrl');
 
 const router = express.Router()
 
-router.param('userId', userCtrl.userByID)
+router.param('surveyId', surveyCtrl.surveyByID)
 
-router.route('')
-  .post(userCtrl.create)
-  .get(authCtrl.requireSignin, userCtrl.list)
+router.use(authCtrl.requireSignin);
+router.use((req, res, next) => {
+  console.log(req.url);
+  next();
+});
 
-router.route('/:userId')
-  .get(authCtrl.requireSignin, userCtrl.read)
-  .put(authCtrl.requireSignin, authCtrl.authorizedToUpdateProfile, userCtrl.update)
-  .delete(authCtrl.requireSignin, authCtrl.authorizedToUpdateProfile, userCtrl.remove)
+router.route('').post(surveyCtrl.create)
+router.route('/feed').get(surveyCtrl.list)
+router.route('/:surveyId').get(surveyCtrl.create)
+router.route('/:surveyId').post(surveyCtrl.answer)
+router.route('/:surveyId').put(surveyCtrl.update)
+router.route('/:surveyId').delete(surveyCtrl.remove)
 
 module.exports = router;
+
+
+/**
+ * survey module:
+ * 
+ * 1) create survey in db POST /api/survey
+ *  
+ * 2) get survey from db  GET /api/survey/surveyId
+ * 
+ * 3) answer survey POST /api/survey/surveyId
+ * 
+ */
